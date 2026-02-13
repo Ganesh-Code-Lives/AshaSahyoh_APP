@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "474801142290",
+    "project_id": "ashasahyog-7b006",
+    "storage_bucket": "ashasahyog-7b006.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474801142290:android:a49cb47009eca6e647f6cb",
+        "android_client_info": {
+          "package_name": "com.example.asha_sahyog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo2e6gfVMHOfbvPG8VWA1NPoeOixHZII0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
