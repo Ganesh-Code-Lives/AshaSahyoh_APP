@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 
 class DisabilityDetails extends StatefulWidget {
@@ -36,7 +37,12 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
     });
   }
 
-  void _handleContinue() {
+  void _handleContinue() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasCompletedProfile', true);
+    await prefs.setString('disabilityType', _disabilityType);
+    await prefs.setStringList('assistiveDevices', _selectedDevices);
+    
     widget.onComplete({
       'hasDisability': _hasDisability,
       'disabilityType': _disabilityType,

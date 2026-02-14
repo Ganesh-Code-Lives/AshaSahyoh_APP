@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 
 class PersonalDetails extends StatefulWidget {
@@ -44,8 +45,15 @@ class _PersonalDetailsState extends State<PersonalDetails> {
       _dateOfBirthController.text.isNotEmpty &&
       _gender.isNotEmpty;
 
-  void _handleContinue() {
+  void _handleContinue() async {
     if (_isValid) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('fullName', _fullNameController.text);
+      await prefs.setString('email', _emailController.text);
+      await prefs.setString('dateOfBirth', _dateOfBirthController.text);
+      await prefs.setString('gender', _gender);
+      await prefs.setString('address', _addressController.text);
+
       widget.onComplete({
         'fullName': _fullNameController.text,
         'email': _emailController.text,

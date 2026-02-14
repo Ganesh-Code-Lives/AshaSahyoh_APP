@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OTPVerification extends StatefulWidget {
   final String mobile;
@@ -84,11 +85,18 @@ class _OTPVerificationState extends State<OTPVerification> {
     });
 
     try {
-      await _authService.verifyOtp(otp);
+      bool success = await _authService.verifyOtp('+91${widget.mobile}', otp);
       
-      if (mounted) {
+      if (success && mounted) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('userPhone', widget.mobile); // Keeping userPhone as well for compatibility if needed
+        await prefs.setString('phoneNumber', widget.mobile); // User's requested key
+        
         setState(() => _isLoading = false);
-        widget.onComplete(); // Navigate to next screen
+        widget.onComplete(); 
+      } else {
+        throw 'Invalid OTP. Please try again.';
       }
     } catch (e) {
       if (mounted) {
@@ -101,31 +109,28 @@ class _OTPVerificationState extends State<OTPVerification> {
   }
   
   void _resendOTP() async {
-    if (!_isResendAvailable) return;
+    if (!_isResendAvailable || _isLoading) return;
     
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    String phoneNumber = '+91${widget.mobile}';
+    final success = await _authService.sendOtp('+91${widget.mobile}');
     
-    await _authService.sendOtp(
-      phoneNumber: phoneNumber,
-      onCodeSent: () {
-         setState(() {
-           _isLoading = false;
-         });
-         _startTimer();
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP Resent!")));
-      },
-      onError: (message) {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (success) {
+        _startTimer();
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP Resent!")));
+      } else {
         setState(() {
-          _isLoading = false;
-          _errorMessage = "Resend failed: $message";
+          _errorMessage = "Resend failed. Please try again.";
         });
-      },
-    );
+      }
+    }
   }
 
   void _onChanged(String value, int index) {
@@ -134,17 +139,26 @@ class _OTPVerificationState extends State<OTPVerification> {
         _focusNodes[index + 1].requestFocus();
       } else {
         _focusNodes[index].unfocus();
-        _verifyOTP(); // Auto verify on last digit
-      }
-    } else {
-      if (index > 0) {
-        _focusNodes[index - 1].requestFocus();
+        // Check if all digits are entered before verifying
+        bool allFilled = _controllers.every((c) => c.text.isNotEmpty);
+        if (allFilled) {
+           _verifyOTP(); 
+        }
       }
     }
     
     setState(() {
       _isComplete = _controllers.every((c) => c.text.isNotEmpty);
     });
+  }
+
+  // Handle backspace manually for empty fields
+  void _onKey(RawKeyEvent event, int index) {
+    if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
+      if (_controllers[index].text.isEmpty && index > 0) {
+        _focusNodes[index - 1].requestFocus();
+      }
+    }
   }
 
   @override
@@ -191,35 +205,39 @@ class _OTPVerificationState extends State<OTPVerification> {
                             ),
                             child: SizedBox(
                               height: 56,
-                              child: TextField(
-                                controller: _controllers[index],
-                                focusNode: _focusNodes[index],
-                                enabled: !_isLoading,
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  LengthLimitingTextInputFormatter(1),
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                onChanged: (value) => _onChanged(value, index),
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.zero,
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(color: AppTheme.inputBorder),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(color: AppTheme.inputBorder),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                              child: RawKeyboardListener(
+                                focusNode: FocusNode(), // Intercepts key events
+                                onKey: (event) => _onKey(event, index),
+                                child: TextField(
+                                  controller: _controllers[index],
+                                  focusNode: _focusNodes[index],
+                                  enabled: !_isLoading,
+                                  textAlign: TextAlign.center,
+                                  keyboardType: TextInputType.number,
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textMain),
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(1),
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  onChanged: (value) => _onChanged(value, index),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.zero,
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(color: AppTheme.inputBorder),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(color: AppTheme.inputBorder),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(color: AppTheme.primary, width: 2),
+                                    ),
                                   ),
                                 ),
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textMain),
                               ),
                             ),
                           ),

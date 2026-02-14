@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'screens/intro_screen.dart';
 import 'screens/language_selection.dart';
@@ -7,18 +10,21 @@ import 'screens/otp_verification.dart';
 import 'screens/personal_details.dart';
 import 'screens/disability_details.dart';
 import 'screens/home_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: 'https://kfrgkhhsnyqqvqtwimbx.supabase.co', // TODO: Replace with your Supabase URL
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcmdraGhzbnlxcXZxdHdpbWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTEyNTgsImV4cCI6MjA4NjYyNzI1OH0.pOSmrezElecOcCm6ANJ81nO_WN9wnc_EdLq1mwAmXZU', // TODO: Replace with your Supabase Anon Key
   );
   
-  // Set global system UI overlays for a production-ready look
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+  final hasCompletedProfile = prefs.getBool('hasCompletedProfile') ?? false;
+
+  // Set global system UI overlays
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -26,11 +32,20 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
 
-  runApp(const MyApp());
+  runApp(MyApp(
+    isLoggedIn: isLoggedIn, 
+    hasCompletedProfile: hasCompletedProfile,
+  ));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  final bool hasCompletedProfile;
+  const MyApp({
+    super.key, 
+    required this.isLoggedIn,
+    required this.hasCompletedProfile,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -38,15 +53,26 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   // Application State
-  bool isAuthenticated = false;
-  String onboardingScreen = 'intro'; // 'intro', 'language', 'mobile', 'otp', 'personal', 'disability'
+  late bool isAuthenticated;
+  String onboardingScreen = 'intro'; 
   
   // User Data State
   String language = '';
   String mobileNumber = '';
-  String? verificationId;
   Map<String, dynamic>? personalData;
   Map<String, dynamic>? disabilityData;
+
+  @override
+  void initState() {
+    super.initState();
+    // User is only fully authenticated if they logged in AND completed onboarding
+    isAuthenticated = widget.isLoggedIn && widget.hasCompletedProfile;
+    
+    // If logged in but onboarding not complete, start at mobile/otp/details depending on state
+    if (widget.isLoggedIn && !widget.hasCompletedProfile) {
+       onboardingScreen = 'personal'; // Re-start at details if phone is already verified
+    }
+  }
 
   void _completeIntro() {
     setState(() => onboardingScreen = 'language');
@@ -62,40 +88,38 @@ class _MyAppState extends State<MyApp> {
   void _completeMobile(String mobile, String verId) {
     setState(() {
       mobileNumber = mobile;
-      verificationId = verId;
-      if (verId == 'AUTO_VERIFIED') {
-        onboardingScreen = 'personal'; // Skip OTP
-      } else {
-        onboardingScreen = 'otp';
-      }
+      onboardingScreen = 'otp';
     });
   }
 
   void _completeOtp() {
-    setState(() => onboardingScreen = 'personal');
+    setState(() {
+      // Don't set isAuthenticated = true yet!
+      onboardingScreen = 'personal'; 
+    });
   }
 
-  void _completePersonal(Map<String, dynamic> data) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await user.updateDisplayName(data['fullName']);
-      // Note: user.updateEmail requires sensitive action re-auth, so we'll just keep it in our Map
-    }
+  void _completePersonal(Map<String, dynamic> data) {
     setState(() {
       personalData = data;
       onboardingScreen = 'disability';
     });
   }
 
-  void _completeDisability(Map<String, dynamic> data) {
+  void _completeDisability(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasCompletedProfile', true);
+    
     setState(() {
       disabilityData = data;
-      isAuthenticated = true;
+      isAuthenticated = true; // Finally enter the Dashboard
     });
   }
 
   void _handleLogout() async {
-    await FirebaseAuth.instance.signOut();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Using clear() as requested in Step 7
+    
     setState(() {
       isAuthenticated = false;
       onboardingScreen = 'intro';
@@ -112,60 +136,13 @@ class _MyAppState extends State<MyApp> {
       title: 'AshaSahyog',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          // If the connection is active, check the auth state
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          final bool hasFirebaseUser = snapshot.hasData;
-
-          // If we have a firebase user
-          if (hasFirebaseUser) {
-            final User user = snapshot.data!;
-            
-            // Auto-populate basic details from Firebase if missing (e.g. after reload)
-            if (personalData == null) {
-              personalData = {
-                'fullName': user.displayName ?? 'User',
-                'email': user.email ?? '',
-                'mobile': user.phoneNumber?.replaceAll('+91', '') ?? '',
-              };
-            }
-
-            // If they just finished the flow in this session
-            if (isAuthenticated) {
-              return HomeScreen(
-                personalData: personalData,
-                disabilityData: disabilityData,
-                onLogout: _handleLogout,
-              );
-            }
-
-            // If they are in the middle of onboarding steps
-            if (onboardingScreen == 'personal') {
-              return PersonalDetails(onComplete: _completePersonal);
-            }
-            if (onboardingScreen == 'disability') {
-              return DisabilityDetails(onComplete: _completeDisability);
-            }
-
-            // Default for auto-login (already finished in a previous session)
-            return HomeScreen(
+      home: isAuthenticated 
+          ? HomeScreen(
               personalData: personalData,
               disabilityData: disabilityData,
               onLogout: _handleLogout,
-            );
-          }
-
-          // User is NOT signed in via Firebase → Show onboarding flow (Intro, Language, Mobile, OTP)
-          return _buildOnboardingFlow();
-        },
-      ),
+            )
+          : _buildOnboardingFlow(),
     );
   }
 
@@ -180,9 +157,13 @@ class _MyAppState extends State<MyApp> {
       case 'otp':
         return OTPVerification(
           mobile: mobileNumber, 
-          verificationId: verificationId ?? '',
+          verificationId: 'TWILIO_VERIFY',
           onComplete: _completeOtp
         );
+      case 'personal':
+        return PersonalDetails(onComplete: _completePersonal);
+      case 'disability':
+        return DisabilityDetails(onComplete: _completeDisability);
       default:
         return IntroScreen(onStart: _completeIntro);
     }

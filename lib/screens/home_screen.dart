@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../components/bottom_nav.dart';
 import 'schemes_finder.dart';
@@ -22,9 +23,37 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String currentScreen = 'home'; // 'home', 'schemes', 'hospitals', 'documents', 'reminders', 'profile', 'support', 'sos'
+  String currentScreen = 'home'; 
   
-  // Logic to handle navigation
+  String fullName = 'User';
+  String phoneNumber = '';
+  String email = '';
+  String dateOfBirth = '';
+  String gender = '';
+  String address = '';
+  String disabilityType = '';
+  List<String> assistiveDevices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      fullName = prefs.getString('fullName') ?? 'User';
+      phoneNumber = prefs.getString('phoneNumber') ?? '';
+      email = prefs.getString('email') ?? '';
+      dateOfBirth = prefs.getString('dateOfBirth') ?? '';
+      gender = prefs.getString('gender') ?? '';
+      address = prefs.getString('address') ?? '';
+      disabilityType = prefs.getString('disabilityType') ?? '';
+      assistiveDevices = prefs.getStringList('assistiveDevices') ?? [];
+    });
+  }
+
   void _navigate(String screen) {
      setState(() {
        currentScreen = screen;
@@ -67,21 +96,21 @@ class _HomeScreenState extends State<HomeScreen> {
       return Profile(
         onBack: () => _navigate('home'),
         onLogout: widget.onLogout,
-        personalData: widget.personalData != null ? PersonalDetailsData(
-          fullName: widget.personalData!['fullName'] ?? '',
-          email: widget.personalData!['email'] ?? '',
-          dateOfBirth: widget.personalData!['dateOfBirth'] != null ? DateTime.tryParse(widget.personalData!['dateOfBirth']) : null,
-          gender: widget.personalData!['gender'] ?? '',
-          address: widget.personalData!['address'] ?? '',
-        ) : null,
-        disabilityData: widget.disabilityData != null ? DisabilityDetailsData(
-          hasDisability: widget.disabilityData!['hasDisability'] ?? false,
-          disabilityType: widget.disabilityData!['disabilityType'] ?? '',
-          percentage: widget.disabilityData!['disabilityPercentage'],
-          certificateNumber: widget.disabilityData!['certificateNumber'],
-          assistiveDevices: List<String>.from(widget.disabilityData!['assistiveDevices'] ?? []),
-        ) : null,
-        mobile: widget.personalData?['mobile'] ?? '9876543210',
+        personalData: PersonalDetailsData(
+          fullName: fullName,
+          email: email,
+          dateOfBirth: dateOfBirth.isNotEmpty ? DateTime.tryParse(dateOfBirth) : null,
+          gender: gender,
+          address: address,
+        ),
+        disabilityData: DisabilityDetailsData(
+          hasDisability: disabilityType.isNotEmpty,
+          disabilityType: disabilityType,
+          percentage: null,
+          certificateNumber: null,
+          assistiveDevices: assistiveDevices,
+        ),
+        mobile: phoneNumber.isNotEmpty ? phoneNumber : '9876543210',
       );
     }
     if (currentScreen == 'support') return Support(onBack: () => _navigate('home'));
@@ -127,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                ),
                                const SizedBox(height: 2),
                                Text(
-                                 widget.personalData?['fullName'] ?? 'User',
+                                 fullName,
                                  style: const TextStyle(
                                    fontSize: 24, 
                                    fontWeight: FontWeight.bold, 

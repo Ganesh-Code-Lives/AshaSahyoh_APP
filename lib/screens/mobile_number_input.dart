@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import 'otp_verification.dart';
@@ -21,36 +21,32 @@ class _MobileNumberInputState extends State<MobileNumberInput> {
   String? _errorMessage;
   
   void _handleContinue() async {
-    if (_controller.text.length != 10) return;
+    final phone = _controller.text.trim();
+
+    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(phone)) {
+      setState(() {
+        _errorMessage = "Enter a valid 10-digit Indian mobile number";
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
-    String phoneNumber = '+91${_controller.text}';
+    final success = await _authService.sendOtp('+91$phone');
 
-    await _authService.sendOtp(
-      phoneNumber: phoneNumber,
-      onCodeSent: () {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          // Assuming AuthService stored the ID.
-          // We pass a dummy or the stored one to the parent callback if it expects one.
-          // But wait, main.dart expects (mobile, verId).
-          // We can expose verId from AuthService.
-          widget.onComplete(_controller.text, _authService.verificationId ?? '');
-        }
-      },
-      onError: (message) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = message;
-          });
-        }
-      },
-    );
+    if (mounted) {
+      setState(() => _isLoading = false);
+      if (success) {
+        widget.onComplete(phone, 'TWILIO_VERIFY');
+      } else {
+        setState(() {
+          _errorMessage = "Failed to send OTP. Please try again.";
+        });
+      }
+    }
   }
 
   @override
