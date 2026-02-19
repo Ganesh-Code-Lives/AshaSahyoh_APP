@@ -1,10 +1,59 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import '../theme/app_theme.dart';
 
-class SchemesFinder extends StatelessWidget {
+class SchemesFinder extends StatefulWidget {
   final VoidCallback onBack;
 
   const SchemesFinder({super.key, required this.onBack});
+
+  @override
+  State<SchemesFinder> createState() => _SchemesFinderState();
+}
+
+class _SchemesFinderState extends State<SchemesFinder> {
+  List<dynamic> _schemes = [];
+  List<dynamic> _filtered = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSchemes();
+  }
+
+  Future<void> _loadSchemes() async {
+    try {
+      final jsonString = await rootBundle.loadString('assets/schemes.json');
+      final data = jsonDecode(jsonString);
+      final list = (data['schemes'] as List<dynamic>?) ?? [];
+      setState(() {
+        _schemes = list;
+        _filtered = List.from(_schemes);
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() => _loading = false);
+    }
+  }
+
+  void _onSearch(String q) {
+    final term = q.trim().toLowerCase();
+    if (term.isEmpty) {
+      setState(() => _filtered = List.from(_schemes));
+      return;
+    }
+    setState(() {
+      _filtered = _schemes.where((s) {
+        final name = (s['scheme_name'] ?? '').toString().toLowerCase();
+        final summary = (s['summary'] ?? '').toString().toLowerCase();
+        final category = (s['category'] ?? '').toString().toLowerCase();
+        return name.contains(term) || summary.contains(term) || category.contains(term);
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,24 +74,25 @@ class SchemesFinder extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back, color: AppTheme.textMain)),
+                      IconButton(onPressed: widget.onBack, icon: const Icon(Icons.arrow_back, color: AppTheme.textMain)),
                       const Text('Scheme Finder', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textMain)),
                       IconButton(onPressed: () {}, icon: const Icon(Icons.mic, color: AppTheme.primary)),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Search Bar
-                  const TextField(
-                    decoration: InputDecoration(
+                  TextField(
+                    onChanged: _onSearch,
+                    decoration: const InputDecoration(
                       hintText: 'Search disability schemes...',
                       prefixIcon: null,
                       suffixIcon: Icon(Icons.mic, color: AppTheme.primary),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Filter Chips
+
+                  // Filter Chips (static for now)
                   const SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -60,37 +110,43 @@ class SchemesFinder extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Schemes List
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: const [
-                  _SchemeCard(
-                    title: 'Disability Pension Scheme',
-                    department: 'Dept of Social Justice & Empowerment',
-                    description: 'Provides monthly financial assistance to persons with benchmark disabilities.',
-                    readAloudColor: Color(0xFFBE185D),
-                    readAloudBg: Color(0xFFFBCFE8),
-                  ),
-                  SizedBox(height: 16),
-                  _SchemeCard(
-                    title: 'Aids & Assistive Devices Grant',
-                    department: 'Ministry of Health and Family Welfare',
-                    description: 'Financial aid for purchasing durable, sophisticated and scientifically manufactured modern aids.',
-                    readAloudColor: Color(0xFF0284C7),
-                    readAloudBg: Color(0xFFBAE6FD),
-                  ),
-                  SizedBox(height: 16),
-                  _SchemeCard(
-                    title: 'Concessional Travel Pass',
-                    department: 'Ministry of Railways',
-                    description: 'Offers concessions on train fares for persons with disabilities across various classes of travel.',
-                    readAloudColor: Color(0xFF065F46),
-                    readAloudBg: Color(0xFFA7F3D0),
-                  ),
-                ],
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _filtered.isEmpty
+                      ? const Center(child: Text('No schemes found'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _filtered.length,
+                          itemBuilder: (context, index) {
+                            final item = _filtered[index];
+                            final title = item['scheme_name'] ?? '';
+                            final department = item['category'] ?? '';
+                            final description = item['summary'] ?? '';
+                            // pick color set by index
+                            final colors = [
+                              [Color(0xFFBE185D), Color(0xFFFBCFE8)],
+                              [Color(0xFF0284C7), Color(0xFFBAE6FD)],
+                              [Color(0xFF065F46), Color(0xFFA7F3D0)],
+                              [Color(0xFF92400E), Color(0xFFFDE68A)],
+                            ];
+                            final pick = colors[index % colors.length];
+                            return Column(
+                              children: [
+                                _SchemeCard(
+                                  title: title,
+                                  department: department,
+                                  description: description,
+                                  readAloudColor: pick[0],
+                                  readAloudBg: pick[1],
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            );
+                          },
+                        ),
             ),
           ],
         ),
