@@ -20,19 +20,27 @@ class AuthService {
     }
 
     try {
+      print("Attempting to invoke 'send-otp' function for phone: $phone");
+      print("Calling send-otp function...");
+      
       final response = await supabase.functions.invoke(
         'send-otp',
         body: {'phone': phone},
       );
 
+      print("Response status: ${response.status}");
+
       if (response.status >= 200 && response.status < 300) {
         return true;
       } else {
-        print("Send OTP Error: ${response.data}");
+        print("Send OTP Error status: ${response.status}");
         return false;
       }
+    } on FunctionException catch (e) {
+      print("Supabase FunctionException: ${e.toString()}");
+      return false;
     } catch (e) {
-      print("Send OTP Exception: $e");
+      print("General Send OTP Exception: $e");
       return false;
     }
   }
