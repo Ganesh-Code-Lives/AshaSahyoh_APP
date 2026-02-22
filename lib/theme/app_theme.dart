@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const Color primary = Color(0xFF7C3AED);
   static const Color primaryDark = Color(0xFF6D28D9);
-  static const Color background = Color(0xFFF8F9FA); // Off-white
+  static const Color background = Color(0xFFFAF7FF); 
   static const Color surface = Colors.white;
   static const Color textMain = Color(0xFF111111);
   static const Color textSecondary = Color(0xFF6B7280);
-  static const Color border = Color(0xFFE5E7EB); // Subtle border
+  static const Color border = Color(0xFFE9D5FF); // Soft purple border
   static const Color inputBorder = Color(0xFFE5E7EB); // Subtle input border
   static const Color error = Color(0xFFDC2626);
   static const Color success = Color(0xFF10B981);
@@ -21,7 +21,7 @@ class AppTheme {
   );
 
   // Specific UI colors
-  static const Color purpleLight = Color(0xFFE9D5FF);
+  static const Color purpleLight = Color(0xFFF4EDFC);
   static const Color purpleVeryLight = Color(0xFFF3E8FF);
   static const Color pinkLight = Color(0xFFFBCFE8);
   static const Color pinkDark = Color(0xFFBE185D);

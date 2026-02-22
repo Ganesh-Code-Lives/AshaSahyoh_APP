@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/user_models.dart';
 
-class Profile extends StatelessWidget {
+class Profile extends StatefulWidget {
   final VoidCallback onBack;
   final VoidCallback onLogout;
   final PersonalDetailsData? personalData;
@@ -19,224 +19,272 @@ class Profile extends StatelessWidget {
   });
 
   @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Offset> _headerSlide;
+  late Animation<double> _bodyFade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 700),
+      vsync: this,
+    );
+
+    // Header slides in from top
+    _headerSlide = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.65, curve: Curves.easeOut),
+    ));
+
+    // Body fades in after header starts landing
+    _bodyFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6FC), // Brand background
+      backgroundColor: AppTheme.background,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // --- Header Section ---
-            Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                // 1. Gradient Background
-                Container(
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF6A1B9A), Color(0xFF8B5CF6)], // Royal Purple -> lighter
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-                  ),
-                ),
-                
-                // 2. Back Button & Title
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: onBack,
-                            icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          ),
-                          const Spacer(),
-                          const Text(
-                            'My Profile',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Spacer(),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.settings, color: Colors.white),
-                          ),
-                        ],
+            // --- Header Section (slides down) ---
+            SlideTransition(
+              position: _headerSlide,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  // 1. Gradient Background
+                  Container(
+                    height: 200,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF7C3AED), Color(0xFFA78BFA)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
+                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
                     ),
                   ),
-                ),
-
-                // 3. Avatar (floating halfway)
-                Positioned(
-                  bottom: -50,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(color: Colors.white, width: 4),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
+                  
+                  // 2. Back Button & Title
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed: widget.onBack,
+                              icon: const Icon(Icons.arrow_back, color: Colors.white),
+                            ),
+                            const Spacer(),
+                            const Text(
+                              'My Profile',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.settings, color: Colors.white),
                             ),
                           ],
                         ),
-                        child: ClipOval(
-                          child: Container(
-                            color: const Color(0xFFE5E7EB),
-                            child: const Icon(Icons.person, size: 50, color: Color(0xFF9CA3AF)),
-                            // Placeholder for image
-                            // child: Image.asset('assets/images/avatar.png', fit: BoxFit.cover),
-                          ),
-                        ),
                       ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 60), // Space for floating avatar
-
-            // --- User Name & Email ---
-            Text(
-              personalData?.fullName ?? 'AshaSahyog User',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              personalData?.email ?? 'user@example.com',
-              style: const TextStyle(
-                color: Color(0xFF6B7280),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // --- Content Sections ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  // Personal Information Card
-                  _SectionCard(
-                    title: 'Personal Information',
-                    icon: Icons.person_outline_rounded,
-                    children: [
-                      _InfoRow(label: 'Full Name', value: personalData?.fullName),
-                      _InfoDivider(),
-                      _InfoRow(label: 'Mobile', value: mobile != null ? '+91 $mobile' : null),
-                      _InfoDivider(),
-                      _InfoRow(label: 'Date of Birth', value: personalData?.dateOfBirth?.toLocal().toString().split(' ')[0]),
-                      _InfoDivider(),
-                      _InfoRow(label: 'Gender', value: personalData?.gender),
-                      _InfoDivider(),
-                      _InfoRow(label: 'Address', value: personalData?.address, isLast: true),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Disability Information Card
-                  _SectionCard(
-                    title: 'Disability Details',
-                    icon: Icons.accessible_forward_rounded,
-                    children: [
-                      if (disabilityData?.hasDisability == true) ...[
-                        _InfoRow(label: 'Type', value: disabilityData?.disabilityType),
-                        _InfoDivider(),
-                        _InfoRow(label: 'Percentage', value: disabilityData?.percentage != null ? '${disabilityData!.percentage}%' : null),
-                        _InfoDivider(),
-                        _InfoRow(label: 'Cert. Number', value: disabilityData?.certificateNumber, isLast: true),
-                      ] else
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No disability details provided.', style: TextStyle(color: Color(0xFF9CA3AF), fontStyle: FontStyle.italic)),
-                        ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Settings / Quick Links Card
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                         BoxShadow(
-                          color: const Color(0xFF6A1B9A).withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
+                  ),
+
+                  // 3. Avatar (floating halfway)
+                  Positioned(
+                    bottom: -50,
                     child: Column(
                       children: [
-                        _SettingsTile(
-                          icon: Icons.language,
-                          color: const Color(0xFF0284C7), 
-                          bgColor: const Color(0xFFE0F2FE), 
-                          title: 'Language & Accessibility',
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.white, width: 4),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Container(
+                              color: const Color(0xFFF3E8FF),
+                              child: Icon(Icons.person, size: 50, color: AppTheme.primary),
+                              // Placeholder for image
+                              // child: Image.asset('assets/images/avatar.png', fit: BoxFit.cover),
+                            ),
+                          ),
                         ),
-                        const Divider(height: 1, color: Color(0xFFF3F4F6), indent: 56, endIndent: 20),
-                        _SettingsTile(
-                          icon: Icons.lock_outline_rounded,
-                          color: const Color(0xFFBE185D), 
-                          bgColor: const Color(0xFFFCE7F3), 
-                          title: 'Change Password',
-                        ),
-                        const Divider(height: 1, color: Color(0xFFF3F4F6), indent: 56, endIndent: 20),
-                        _SettingsTile(
-                          icon: Icons.help_outline_rounded,
-                          color: const Color(0xFF059669), 
-                          bgColor: const Color(0xFFD1FAE5), 
-                          title: 'Help & Support',
-                        ),
+                        const SizedBox(height: 12),
                       ],
                     ),
                   ),
+                ],
+              ),
+            ),
 
-                  const SizedBox(height: 32),
+            // --- Body content (fades in) ---
+            FadeTransition(
+              opacity: _bodyFade,
+              child: Column(
+                children: [
+                  const SizedBox(height: 60), // Space for floating avatar
 
-                  // Logout Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton.icon(
-                      onPressed: onLogout,
-                      icon: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444)),
-                      label: const Text('Log Out', style: TextStyle(color: Color(0xFFEF4444), fontSize: 16, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFFCA5A5)),
-                        backgroundColor: const Color(0xFFFEF2F2),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                  // --- User Name & Email ---
+                  Text(
+                    widget.personalData?.fullName ?? 'AshaSahyog User',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.personalData?.email ?? 'user@example.com',
+                    style: const TextStyle(
+                      color: Color(0xFF6B7280),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                  const SizedBox(height: 40),
+                  // --- Content Sections ---
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      children: [
+                        // Personal Information Card
+                        _SectionCard(
+                          title: 'Personal Information',
+                          icon: Icons.person_outline_rounded,
+                          children: [
+                            _InfoRow(label: 'Full Name', value: widget.personalData?.fullName),
+                            _InfoDivider(),
+                            _InfoRow(label: 'Mobile', value: widget.mobile != null ? '+91 ${widget.mobile}' : null),
+                            _InfoDivider(),
+                            _InfoRow(label: 'Date of Birth', value: widget.personalData?.dateOfBirth?.toLocal().toString().split(' ')[0]),
+                            _InfoDivider(),
+                            _InfoRow(label: 'Gender', value: widget.personalData?.gender),
+                            _InfoDivider(),
+                            _InfoRow(label: 'Address', value: widget.personalData?.address, isLast: true),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Disability Information Card
+                        _SectionCard(
+                          title: 'Disability Details',
+                          icon: Icons.accessible_forward_rounded,
+                          children: [
+                            if (widget.disabilityData?.hasDisability == true) ...[
+                              _InfoRow(label: 'Type', value: widget.disabilityData?.disabilityType),
+                              _InfoDivider(),
+                              _InfoRow(label: 'Percentage', value: widget.disabilityData?.percentage != null ? '${widget.disabilityData!.percentage}%' : null),
+                              _InfoDivider(),
+                              _InfoRow(label: 'Cert. Number', value: widget.disabilityData?.certificateNumber, isLast: true),
+                            ] else
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                                child: Text('No disability details provided.', style: TextStyle(color: Color(0xFF9CA3AF), fontStyle: FontStyle.italic)),
+                              ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // Settings / Quick Links Card
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AppTheme.border, width: 2),
+                          ),
+                          child: Column(
+                            children: [
+                              _SettingsTile(
+                                icon: Icons.language,
+                                color: const Color(0xFF0284C7), 
+                                bgColor: const Color(0xFFE0F2FE), 
+                                title: 'Language & Accessibility',
+                              ),
+                              Divider(height: 1, color: AppTheme.border, indent: 56, endIndent: 20),
+                              _SettingsTile(
+                                icon: Icons.lock_outline_rounded,
+                                color: const Color(0xFFBE185D), 
+                                bgColor: const Color(0xFFFCE7F3), 
+                                title: 'Change Password',
+                              ),
+                              Divider(height: 1, color: AppTheme.border, indent: 56, endIndent: 20),
+                              _SettingsTile(
+                                icon: Icons.help_outline_rounded,
+                                color: const Color(0xFF059669), 
+                                bgColor: const Color(0xFFD1FAE5), 
+                                title: 'Help & Support',
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        // Logout Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: OutlinedButton.icon(
+                            onPressed: widget.onLogout,
+                            icon: const Icon(Icons.logout_rounded, color: Color(0xFFF87171)),
+                            label: const Text('Log Out', style: TextStyle(color: Color(0xFFF87171), fontSize: 16, fontWeight: FontWeight.bold)),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFFFECACA)),
+                              backgroundColor: const Color(0xFFFEF2F2),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -261,14 +309,8 @@ class _SectionCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF6A1B9A).withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.border, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +332,7 @@ class _SectionCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, color: AppTheme.border),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -350,7 +392,7 @@ class _InfoDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(vertical: 12),
-      child: Divider(height: 1, color: Color(0xFFF3F4F6)),
+      child: Divider(height: 1, color: AppTheme.border),
     );
   }
 }

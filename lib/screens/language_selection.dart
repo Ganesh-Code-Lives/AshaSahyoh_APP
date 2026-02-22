@@ -19,6 +19,24 @@ class _LanguageSelectionState extends State<LanguageSelection> {
     {'code': 'mr', 'name': 'Marathi', 'nativeName': 'मराठी'},
   ];
 
+  final Map<String, Color> baseColors = {
+    'en': const Color(0xFFFBCFE8), // Pink
+    'hi': const Color(0xFFBAE6FD), // Blue
+    'mr': const Color(0xFFA7F3D0), // Green
+  };
+
+  final Map<String, Color> activeLightColors = {
+    'en': const Color(0xFFFCE7F3),
+    'hi': const Color(0xFFE0F2FE),
+    'mr': const Color(0xFFD1FAE5),
+  };
+
+  final Map<String, Color> borderColors = {
+    'en': const Color(0xFFF472B6),
+    'hi': const Color(0xFF0284C7),
+    'mr': const Color(0xFF059669),
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,27 +81,23 @@ class _LanguageSelectionState extends State<LanguageSelection> {
                   separatorBuilder: (context, index) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final lang = languages[index];
-                    final isActive = selectedLanguage == lang['code'];
+                    final code = lang['code']!;
+                    final isActive = selectedLanguage == code;
+                    
                     return InkWell(
-                      onTap: () => setState(() => selectedLanguage = lang['code']!),
-                      borderRadius: BorderRadius.circular(16),
+                      onTap: () => setState(() => selectedLanguage = code),
+                      borderRadius: BorderRadius.circular(20),
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeInOut,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          color: isActive ? activeLightColors[code] : baseColors[code],
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: isActive ? AppTheme.primary : Colors.transparent, 
-                            width: 2
+                            color: isActive ? borderColors[code]! : baseColors[code]!,
+                            width: 2,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            )
-                          ],
                         ),
                         child: Row(
                           children: [
@@ -91,23 +105,41 @@ class _LanguageSelectionState extends State<LanguageSelection> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(lang['name']!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.textMain)),
+                                  Text(
+                                    lang['name']!, 
+                                    style: const TextStyle(
+                                      fontSize: 18, 
+                                      fontWeight: FontWeight.bold, 
+                                      color: Colors.black87
+                                    )
+                                  ),
                                   const SizedBox(height: 4),
-                                  Text(lang['nativeName']!, style: const TextStyle(fontSize: 14, color: AppTheme.textSecondary)),
+                                  Text(
+                                    lang['nativeName']!, 
+                                    style: const TextStyle(
+                                      fontSize: 14, 
+                                      color: Colors.black54
+                                    )
+                                  ),
                                 ],
                               ),
                             ),
-                            Container(
-                              width: 24,
-                              height: 24,
-                              decoration: BoxDecoration(
-                                color: isActive ? AppTheme.primary : AppTheme.purpleLight.withOpacity(0.3),
-                                shape: BoxShape.circle,
-                                border: isActive ? null : Border.all(color: AppTheme.purpleLight),
+                            AnimatedOpacity(
+                              duration: const Duration(milliseconds: 200),
+                              opacity: isActive ? 1.0 : 0.0,
+                              child: Container(
+                                width: 28,
+                                height: 28,
+                                decoration: BoxDecoration(
+                                  color: borderColors[code],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check, 
+                                  size: 18, 
+                                  color: Colors.white
+                                ),
                               ),
-                              child: isActive 
-                                ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                : null,
                             ),
                           ],
                         ),

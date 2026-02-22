@@ -64,14 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     // Basic scaffold for Home, we can expand later for other screens
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       body: Center(
         child: Container(
            constraints: const BoxConstraints(maxWidth: 480),
            // Mimic the app-screen class
            margin: const EdgeInsets.symmetric(horizontal: 0), 
            decoration: const BoxDecoration(
-             color: Colors.white,
+             color: AppTheme.background,
            ),
            child: Column(
              children: [
@@ -126,18 +126,12 @@ class _HomeScreenState extends State<HomeScreen> {
                bottom: false,
                child: Column(
                  children: [
-                   // Top Accent Strip
-                   Container(
-                     height: 4,
-                     width: double.infinity,
-                     color: const Color(0xFF6A1B9A), // Brand Purple
-                   ),
                    Container(
                      width: double.infinity,
                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
                      decoration: const BoxDecoration(
-                       color: Colors.white,
-                       border: Border(bottom: BorderSide(color: Color(0xFFF3F4F6), width: 1)), // Subtle separator
+                       color: AppTheme.purpleLight,
+                        border: Border(bottom: BorderSide(color: AppTheme.border, width: 2)),
                      ),
                      child: Row(
                        mainAxisAlignment: MainAxisAlignment.spaceBetween,

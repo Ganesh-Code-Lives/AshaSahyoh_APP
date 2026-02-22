@@ -9,7 +9,7 @@ class Support extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Clean background
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: Column(
           children: [
@@ -74,7 +74,7 @@ class Support extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.warning_amber_rounded, color: Color(0xFFDC2626), size: 24),
+                          const Icon(Icons.warning_amber_rounded, color: Color(0xFFEA3336), size: 24),
                           const SizedBox(width: 12),
                           const Expanded(
                             child: Text(
@@ -89,7 +89,7 @@ class Support extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFDC2626),
+                              color: const Color(0xFFEA3336),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(
@@ -126,8 +126,8 @@ class Support extends StatelessWidget {
                               title: "Ambulance",
                               number: "108",
                               icon: Icons.medical_services_outlined,
-                              colorTheme: const Color(0xFFDC2626), // Red
-                              bgColor: const Color(0xFFFEF2F2),
+                              colorTheme: const Color(0xFFEA3336), // Soft Red
+                              bgColor: const Color(0xFFFEE2E2),
                             ),
                             _EmergencyCard(
                               width: itemWidth,
@@ -135,8 +135,8 @@ class Support extends StatelessWidget {
                               title: "Police",
                               number: "100",
                               icon: Icons.local_police_outlined,
-                              colorTheme: const Color(0xFF2563EB), // Blue
-                              bgColor: const Color(0xFFEFF6FF),
+                              colorTheme: const Color(0xFF60A5FA), // Soft Blue
+                              bgColor: const Color(0xFFDBEAFE),
                             ),
                             _EmergencyCard(
                               width: itemWidth,
@@ -144,8 +144,8 @@ class Support extends StatelessWidget {
                               title: "Fire",
                               number: "101",
                               icon: Icons.local_fire_department_outlined,
-                              colorTheme: const Color(0xFFEA580C), // Orange
-                              bgColor: const Color(0xFFFFF7ED),
+                              colorTheme: const Color(0xFFFB923C), // Soft Orange
+                              bgColor: const Color(0xFFFED7AA),
                             ),
                             _EmergencyCard(
                               width: itemWidth,
@@ -153,8 +153,8 @@ class Support extends StatelessWidget {
                               title: "Women Help",
                               number: "1091",
                               icon: Icons.female_rounded,
-                              colorTheme: const Color(0xFFDB2777), // Pink
-                              bgColor: const Color(0xFFFDF2F8),
+                              colorTheme: const Color(0xFFF85FAF), // Soft Pink
+                              bgColor: const Color(0xFFFBCFE8),
                             ),
                           ],
                         );
@@ -233,7 +233,7 @@ class _EmergencyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.border, width: 2), // Added border to match Home Screen
+        border: Border.all(color: AppTheme.border, width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -264,15 +264,24 @@ class _EmergencyCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "$title ($number)",
+                  title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 13,
                     color: Color(0xFF374151),
                   ),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  "($number)",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 12,
+                    color: Color(0xFF6B7280),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
                 Text(
