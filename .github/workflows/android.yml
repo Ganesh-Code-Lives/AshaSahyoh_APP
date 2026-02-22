@@ -60,12 +60,11 @@ jobs:
         with:
           name: release-apk
           path: .
-  
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
-          files: release-apk/app-release.apk
           files: app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
