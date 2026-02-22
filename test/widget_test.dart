@@ -1,18 +1,11 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:asha_sahyog/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App shows login screen when not logged in', (WidgetTester tester) async {
+    // Build the app with a user who is not logged in
     await tester.pumpWidget(
       const MyApp(
         hasCompletedProfile: false,
@@ -20,16 +13,33 @@ void main() {
       ),
     );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that the login prompt or related UI is visible
+    expect(find.text('Login'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('App shows home screen when logged in and profile completed', (WidgetTester tester) async {
+    // Build the app with a user who is logged in and has completed profile
+    await tester.pumpWidget(
+      const MyApp(
+        hasCompletedProfile: true,
+        isLoggedIn: true,
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the home screen loads (replace with actual text from your home screen)
+    expect(find.text('Asha Sahyog'), findsOneWidget);
+  });
+
+  testWidgets('App shows profile completion prompt when logged in but profile incomplete', (WidgetTester tester) async {
+    // Build the app with a user who is logged in but has not completed profile
+    await tester.pumpWidget(
+      const MyApp(
+        hasCompletedProfile: false,
+        isLoggedIn: true,
+      ),
+    );
+
+    // Verify that the profile completion prompt is visible (replace with actual text from your UI)
+    expect(find.text('Complete your profile'), findsOneWidget);
   });
 }
