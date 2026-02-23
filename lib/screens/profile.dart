@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../models/user_models.dart';
 
@@ -26,10 +31,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _headerSlide;
   late Animation<double> _bodyFade;
+  String? _profileImageBase64;
 
   @override
   void initState() {
     super.initState();
+    _loadProfileImage();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 700),
       vsync: this,
@@ -59,6 +66,59 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadProfileImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _profileImageBase64 = prefs.getString('profileImageBase64');
+    });
+  }
+
+  Future<void> _handleImageChange() async {
+    if (_profileImageBase64 != null) {
+      final shouldChange = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Change Photo'),
+          content: const Text('Do you want to change your profile photo?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Change'),
+            ),
+          ],
+        ),
+      );
+      if (shouldChange != true) return;
+    }
+    await _pickImage();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        final bytes = await pickedFile.readAsBytes();
+        final base64String = base64Encode(bytes);
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('profileImageBase64', base64String);
+        if (mounted) {
+          setState(() {
+            _profileImageBase64 = base64String;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Image picking failed: $e");
+    }
   }
 
   @override
@@ -127,27 +187,30 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     bottom: -50,
                     child: Column(
                       children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            border: Border.all(color: Colors.white, width: 4),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
+                        GestureDetector(
+                          onTap: _handleImageChange,
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(color: Colors.white, width: 4),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: ClipOval(
+                              child: Container(
+                                color: const Color(0xFFF3E8FF),
+                                child: _profileImageBase64 != null
+                                    ? Image.memory(base64Decode(_profileImageBase64!), fit: BoxFit.cover)
+                                    : const Icon(Icons.person, size: 50, color: AppTheme.primary),
                               ),
-                            ],
-                          ),
-                          child: ClipOval(
-                            child: Container(
-                              color: const Color(0xFFF3E8FF),
-                              child: Icon(Icons.person, size: 50, color: AppTheme.primary),
-                              // Placeholder for image
-                              // child: Image.asset('assets/images/avatar.png', fit: BoxFit.cover),
                             ),
                           ),
                         ),

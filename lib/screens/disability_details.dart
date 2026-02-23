@@ -41,6 +41,8 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasCompletedProfile', true);
     await prefs.setString('disabilityType', _disabilityType);
+    await prefs.setString('disabilityPercentage', _percentageController.text);
+    await prefs.setString('certificateNumber', _certificateController.text);
     await prefs.setStringList('assistiveDevices', _selectedDevices);
     
     widget.onComplete({

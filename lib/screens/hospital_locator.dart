@@ -180,59 +180,7 @@ class HospitalLocator extends StatelessWidget {
             ],
           ),
 
-          // --- 3. Floating SOS Button ---
-          Positioned(
-            bottom: 24,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFDC2626), Color(0xFFEF4444)], // Red Gradient
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFDC2626).withOpacity(0.4),
-                      blurRadius: 20,
-                      spreadRadius: 4,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    onTap: () {
-                      // Trigger SOS
-                    },
-                    customBorder: const CircleBorder(),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.sos_rounded, color: Colors.white, size: 28),
-                        Text(
-                          "SOS",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
+
         ],
       ),
     );
@@ -332,6 +280,7 @@ class _HospitalCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
+        border: Border.all(color: AppTheme.border, width: 2),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(

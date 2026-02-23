@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
@@ -32,7 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String gender = '';
   String address = '';
   String disabilityType = '';
+  String disabilityPercentage = '';
+  String certificateNumber = '';
   List<String> assistiveDevices = [];
+  String? _profileImageBase64;
 
   @override
   void initState() {
@@ -50,11 +56,17 @@ class _HomeScreenState extends State<HomeScreen> {
       gender = prefs.getString('gender') ?? '';
       address = prefs.getString('address') ?? '';
       disabilityType = prefs.getString('disabilityType') ?? '';
+      disabilityPercentage = prefs.getString('disabilityPercentage') ?? '';
+      certificateNumber = prefs.getString('certificateNumber') ?? '';
       assistiveDevices = prefs.getStringList('assistiveDevices') ?? [];
+      _profileImageBase64 = prefs.getString('profileImageBase64');
     });
   }
 
   void _navigate(String screen) {
+     if (screen == 'home') {
+       _loadProfile();
+     }
      setState(() {
        currentScreen = screen;
      });
@@ -99,18 +111,18 @@ class _HomeScreenState extends State<HomeScreen> {
         personalData: PersonalDetailsData(
           fullName: fullName,
           email: email,
-          dateOfBirth: dateOfBirth.isNotEmpty ? DateTime.tryParse(dateOfBirth) : null,
+          dateOfBirth: dateOfBirth.length > 0 ? DateTime.tryParse(dateOfBirth) : null,
           gender: gender,
           address: address,
         ),
         disabilityData: DisabilityDetailsData(
-          hasDisability: disabilityType.isNotEmpty,
+          hasDisability: disabilityType.length > 0,
           disabilityType: disabilityType,
-          percentage: null,
-          certificateNumber: null,
+          percentage: disabilityPercentage.length > 0 ? disabilityPercentage : null,
+          certificateNumber: certificateNumber.length > 0 ? certificateNumber : null,
           assistiveDevices: assistiveDevices,
         ),
-        mobile: phoneNumber.isNotEmpty ? phoneNumber : '9876543210',
+        mobile: phoneNumber.length > 0 ? phoneNumber : '9876543210',
       );
     }
     if (currentScreen == 'support') return Support(onBack: () => _navigate('home'));
@@ -156,6 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                    fontWeight: FontWeight.bold, 
                                    color: Color(0xFF1F2937), // Dark Charcoal
                                  ),
+                                 maxLines: 2,
                                  overflow: TextOverflow.ellipsis,
                                ),
                                const SizedBox(height: 4),
@@ -180,7 +193,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                shape: BoxShape.circle,
                                border: Border.all(color: const Color(0xFFE9D5FF), width: 1),
                              ),
-                             child: const Icon(Icons.person, color: Color(0xFF7C3AED), size: 24), // Branded Icon
+                             child: ClipOval(
+                               clipBehavior: Clip.hardEdge,
+                               child: _profileImageBase64 != null
+                                    ? Image.memory(base64Decode(_profileImageBase64!), fit: BoxFit.cover, width: 48, height: 48)
+                                    : const Icon(Icons.person, color: Color(0xFF7C3AED), size: 24),
+                             ),
                            ),
                          ),
                        ],
@@ -195,13 +213,15 @@ class _HomeScreenState extends State<HomeScreen> {
              child: Column(
                children: [
                  // Quick Actions Grid
-                  GridView.count(
+                  GridView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.95,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      mainAxisExtent: 140,
+                    ),
                    children: [
                      _buildQuickActionCard(
                        'Find Schemes',
@@ -271,11 +291,11 @@ class _HomeScreenState extends State<HomeScreen> {
                    scrollDirection: Axis.horizontal,
                    child: Row(
                      children: [
-                       _buildSchemeCard('Financial Aid Program', 'Provides monthly financial assistance...', AppTheme.primary),
+                       _buildSchemeCard('Financial Aid Program', 'Provides monthly financial assistance to persons with benchmark disabilities to support their basic needs...', AppTheme.primary),
                        const SizedBox(width: 12),
-                       _buildSchemeCard('Assistive Devices', 'Offers financial assistance for purchasing...', AppTheme.success),
+                       _buildSchemeCard('Assistive Devices', 'Offers financial assistance for purchasing durable, advanced, and scientifically designed assistive devices...', AppTheme.success),
                        const SizedBox(width: 12),
-                       _buildSchemeCard('Concessional Travel Pass', 'Provides concessions on train fares...', AppTheme.primary),
+                       _buildSchemeCard('Concessional Travel Pass', 'Provides concessions on train fares for persons with disabilities across multiple travel classes...', AppTheme.primary),
                      ],
                    ),
                  ),
@@ -297,44 +317,54 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppTheme.border, width: 2),
-          // hover effect simulation could go here with InkWell
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Stack(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     color: bgColor,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: iconColor, size: 20),
+                  child: Icon(icon, color: iconColor, size: 24),
                 ),
-                const Spacer(),
-                Text(
-                  title, 
-                  style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textMain),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: bgColor.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.volume_up, size: 16, color: iconColor.withOpacity(0.7)),
                 ),
               ],
             ),
-             Positioned(
-               top: 0,
-               right: 0,
-               child: Container(
-                 width: 32,
-                 height: 32,
-                 decoration: BoxDecoration(
-                   color: bgColor.withOpacity(0.3),
-                   shape: BoxShape.circle,
-                 ),
-                 child: Icon(Icons.volume_up, size: 16, color: iconColor.withOpacity(0.7)),
-               ),
-             ),
+            const SizedBox(height: 12),
+            Text(
+              title, 
+              style: const TextStyle(
+                fontWeight: FontWeight.bold, 
+                color: AppTheme.textMain,
+                fontSize: 15,
+                height: 1.2,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),

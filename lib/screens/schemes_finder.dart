@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../theme/app_theme.dart';
+import 'scheme_details_screen.dart';
 
 class SchemesFinder extends StatefulWidget {
   final VoidCallback onBack;
@@ -135,12 +136,23 @@ class _SchemesFinderState extends State<SchemesFinder> {
                             final pick = colors[index % colors.length];
                             return Column(
                               children: [
-                                _SchemeCard(
-                                  title: title,
-                                  department: department,
-                                  description: description,
-                                  readAloudColor: pick[0],
-                                  readAloudBg: pick[1],
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => SchemeDetailsScreen(scheme: item),
+                                      ),
+                                    );
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: _SchemeCard(
+                                    title: title,
+                                    department: department,
+                                    description: description,
+                                    readAloudColor: pick[0],
+                                    readAloudBg: pick[1],
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                               ],
