@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                              children: [
                                const SizedBox(height: 18),
                                Text(
-                                 'Welcome back,',
+                                 'Welcome Back,',
                                  style: TextStyle(
                                    color: Color(0xFF6E29DA), // Branded Purple
                                    fontSize: 16,
@@ -212,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
                children: [
                  // Quick Actions Grid
                   GridView(
+                    padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -293,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                        const SizedBox(width: 12),
                        _buildSchemeCard('Assistive Devices', 'Offers financial assistance for purchasing durable, advanced, and scientifically designed assistive devices...', AppTheme.success),
                        const SizedBox(width: 12),
-                       _buildSchemeCard('Concessional Travel Pass', 'Provides concessions on train fares for persons with disabilities across multiple travel classes...', AppTheme.primary),
+                       _buildSchemeCard('Concessional Travel Pass', 'Provides concessions on train fares for persons with disabilities across multiple travel classes...', AppTheme.concession),
                      ],
                    ),
                  ),

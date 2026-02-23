@@ -31,6 +31,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   late Animation<Offset> _headerSlide;
   late Animation<double> _bodyFade;
   String? _profileImageBase64;
+  bool _isAvatarPressed = false;
 
   @override
   void initState() {
@@ -186,29 +187,41 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     bottom: -50,
                     child: Column(
                       children: [
-                        GestureDetector(
-                          onTap: _handleImageChange,
-                          child: Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              border: Border.all(color: Colors.white, width: 4),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
+                        Material(
+                          type: MaterialType.transparency,
+                          child: InkWell(
+                            onTap: _handleImageChange,
+                            onHighlightChanged: (isHighlighted) {
+                              setState(() {
+                                _isAvatarPressed = isHighlighted;
+                              });
+                            },
+                            customBorder: const CircleBorder(),
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: _isAvatarPressed ? AppTheme.border : Colors.white, 
+                                  width: 4
                                 ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: Container(
-                                color: const Color(0xFFF3E8FF),
-                                child: _profileImageBase64 != null
-                                    ? Image.memory(base64Decode(_profileImageBase64!), fit: BoxFit.cover)
-                                    : const Icon(Icons.person, size: 50, color: AppTheme.primary),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: ClipOval(
+                                child: Container(
+                                  color: const Color(0xFFF3E8FF),
+                                  child: _profileImageBase64 != null
+                                      ? Image.memory(base64Decode(_profileImageBase64!), fit: BoxFit.cover)
+                                      : const Icon(Icons.person, size: 50, color: AppTheme.primary),
+                                ),
                               ),
                             ),
                           ),
@@ -333,8 +346,8 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           height: 50,
                           child: OutlinedButton.icon(
                             onPressed: widget.onLogout,
-                            icon: const Icon(Icons.logout_rounded, color: Color(0xFFF87171)),
-                            label: const Text('Log Out', style: TextStyle(color: Color(0xFFF87171), fontSize: 16, fontWeight: FontWeight.bold)),
+                            icon: const Icon(Icons.logout_rounded, color: Color(0xFFBE185D)),
+                            label: const Text('Log Out', style: TextStyle(color: Color(0xFFBE185D), fontSize: 16, fontWeight: FontWeight.bold)),
                             style: OutlinedButton.styleFrom(
                               side: const BorderSide(color: Color(0xFFFECACA)),
                               backgroundColor: const Color(0xFFFEF2F2),

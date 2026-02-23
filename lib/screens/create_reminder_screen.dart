@@ -149,6 +149,10 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
               decoration: InputDecoration(
                 labelText: 'Title',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.border, width: 2),
+                ),
               ),
               validator: (value) => value == null || value.trim().isEmpty ? 'Please enter a title' : null,
             ),
@@ -160,6 +164,10 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
               decoration: InputDecoration(
                 labelText: 'Description (Optional)',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.border, width: 2),
+                ),
               ),
               maxLines: 3,
             ),
@@ -171,6 +179,10 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
               decoration: InputDecoration(
                 labelText: 'Type',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.border, width: 2),
+                ),
               ),
               items: const [
                 DropdownMenuItem(value: ReminderType.appointment, child: Text('Appointment')),
@@ -193,6 +205,10 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
                       decoration: InputDecoration(
                         labelText: 'Date',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.border, width: 2),
+                ),
                       ),
                       child: Text(
                         _selectedDate == null ? 'Select Date' : DateFormat('dd MMM yyyy').format(_selectedDate!),
@@ -208,6 +224,10 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
                       decoration: InputDecoration(
                         labelText: 'Time',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.border, width: 2),
+                ),
                       ),
                       child: Text(
                         _selectedTime == null ? 'Select Time' : _selectedTime!.format(context),
@@ -225,6 +245,10 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
               decoration: InputDecoration(
                 labelText: 'Repeat',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.border, width: 2),
+                ),
               ),
               items: const [
                 DropdownMenuItem(value: RepeatType.none, child: Text('None')),

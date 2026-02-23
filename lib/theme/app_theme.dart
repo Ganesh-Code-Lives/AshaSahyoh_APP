@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const Color primary = Color(0xFF7C3AED);
+  static const Color concession = Color(0xFF0284C7);
   static const Color primaryDark = Color(0xFF6D28D9);
   static const Color background = Color(0xFFFAF7FF); 
   static const Color surface = Colors.white;

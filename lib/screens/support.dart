@@ -69,19 +69,19 @@ class Support extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFEE2E2), // Light Red
+                        color: const Color(0xFFFBCFE8), // Light Red
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFFECACA)),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.warning_amber_rounded, color: Color(0xFFEA3336), size: 24),
+                          const Icon(Icons.warning_amber_rounded, color: Color(0xFFBE185D), size: 24),
                           const SizedBox(width: 12),
                           const Expanded(
                             child: Text(
                               "In case of immediate danger call 112",
                               style: TextStyle(
-                                color: Color(0xFF991B1B),
+                                color: Color(0xFFBE185D),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
                               ),
@@ -89,7 +89,7 @@ class Support extends StatelessWidget {
                           ),
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEA3336),
+                              color: const Color(0xFFBE185D),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Material(
@@ -136,8 +136,8 @@ class Support extends StatelessWidget {
                               title: "Ambulance",
                               number: "108",
                               icon: Icons.medical_services_outlined,
-                              colorTheme: const Color(0xFFEA3336), // Soft Red
-                              bgColor: const Color(0xFFFEE2E2),
+                              colorTheme: const Color(0xFFBE185D), // Soft Red
+                              bgColor: const Color(0xFFFBCFE8),
                             ),
                             _EmergencyCard(
                               width: itemWidth,
@@ -145,8 +145,8 @@ class Support extends StatelessWidget {
                               title: "Police",
                               number: "100",
                               icon: Icons.local_police_outlined,
-                              colorTheme: const Color(0xFF60A5FA), // Soft Blue
-                              bgColor: const Color(0xFFDBEAFE),
+                              colorTheme: const Color(0xFF0284C7), // Soft Blue
+                              bgColor: const Color(0xFFBAE6FD),
                             ),
                             _EmergencyCard(
                               width: itemWidth,
