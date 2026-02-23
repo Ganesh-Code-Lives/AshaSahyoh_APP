@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -134,17 +133,16 @@ class _HomeScreenState extends State<HomeScreen> {
          crossAxisAlignment: CrossAxisAlignment.start,
          children: [
              // Header
-             SafeArea(
-               bottom: false,
-               child: Column(
-                 children: [
-                   Container(
-                     width: double.infinity,
-                     padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-                     decoration: const BoxDecoration(
-                       color: AppTheme.purpleLight,
-                        border: Border(bottom: BorderSide(color: AppTheme.border, width: 2)),
-                     ),
+             Container(
+               width: double.infinity,
+               decoration: const BoxDecoration(
+                 color: AppTheme.purpleLight,
+                 border: Border(bottom: BorderSide(color: AppTheme.border, width: 2)),
+               ),
+               child: SafeArea(
+                 bottom: false,
+                 child: Padding(
+                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                      child: Row(
                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                        children: [
@@ -152,26 +150,27 @@ class _HomeScreenState extends State<HomeScreen> {
                            child: Column(
                              crossAxisAlignment: CrossAxisAlignment.start,
                              children: [
-                               const Text(
+                               const SizedBox(height: 18),
+                               Text(
                                  'Welcome back,',
                                  style: TextStyle(
                                    color: Color(0xFF6E29DA), // Branded Purple
-                                   fontSize: 13,
-                                   fontWeight: FontWeight.w500,
+                                   fontSize: 16,
+                                   fontWeight: FontWeight.bold,
                                  ),
                                ),
                                const SizedBox(height: 2),
                                Text(
                                  fullName,
                                  style: const TextStyle(
-                                   fontSize: 24, 
+                                   fontSize: 18, 
                                    fontWeight: FontWeight.bold, 
                                    color: Color(0xFF1F2937), // Dark Charcoal
                                  ),
                                  maxLines: 2,
                                  overflow: TextOverflow.ellipsis,
                                ),
-                               const SizedBox(height: 4),
+                               const SizedBox(height: 3),
                                 const Text(
                                  'How can we help you today?',
                                  style: TextStyle(
@@ -204,12 +203,11 @@ class _HomeScreenState extends State<HomeScreen> {
                        ],
                      ),
                    ),
-                 ],
+                 ),
                ),
-             ),
 
            Padding(
-             padding: const EdgeInsets.all(24),
+             padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
              child: Column(
                children: [
                  // Quick Actions Grid
@@ -224,28 +222,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                    children: [
                      _buildQuickActionCard(
-                       'Find Schemes',
+                       'Find\nSchemes',
                        Icons.description,
                        const Color(0xFFC4B5FD), // Light Purple
                        AppTheme.primary,
                        () => _navigate('schemes'),
                      ),
                      _buildQuickActionCard(
-                       'Nearby Hospitals',
+                       'Nearby\nHospitals',
                        Icons.add,
                        const Color(0xFFA7F3D0), // Light Green
                        const Color(0xFF059669), // Green
                        () => _navigate('hospitals'),
                      ),
                      _buildQuickActionCard(
-                       'My Documents',
+                       'My\nDocuments',
                        Icons.folder,
                        const Color(0xFFBAE6FD), // Light Blue
                        const Color(0xFF0284C7), // Blue
                        () => _navigate('documents'),
                      ),
                      _buildQuickActionCard(
-                       'My Reminders',
+                       'My\nReminders',
                        Icons.notifications,
                        const Color(0xFFFBCFE8), // Light Pink
                        const Color(0xFFBE185D), // Pink
@@ -354,16 +352,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              title, 
-              style: const TextStyle(
-                fontWeight: FontWeight.bold, 
-                color: AppTheme.textMain,
-                fontSize: 15,
-                height: 1.2,
+            SizedBox(
+              height: 38, // Force exactly two lines of height
+              child: Text(
+                title, 
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold, 
+                  color: AppTheme.textMain,
+                  fontSize: 15,
+                  height: 1.2,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -433,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: color,
-              minimumSize: const Size(double.infinity, 36),
+              minimumSize: const Size(double.infinity, 40),
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
              child: const Text('Learn More', style: TextStyle(fontSize: 14)),

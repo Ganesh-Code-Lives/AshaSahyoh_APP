@@ -16,12 +16,35 @@ class Reminders extends StatefulWidget {
 
 class _RemindersState extends State<Reminders> {
   List<Reminder> _reminders = [];
+  List<Reminder> _filteredReminders = [];
   bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadReminders();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      if (query.isEmpty) {
+        _filteredReminders = List.from(_reminders);
+      } else {
+        _filteredReminders = _reminders.where((r) {
+          return r.title.toLowerCase().contains(query) || 
+                 r.description.toLowerCase().contains(query);
+        }).toList();
+      }
+    });
   }
 
   Future<void> _loadReminders() async {
@@ -35,6 +58,10 @@ class _RemindersState extends State<Reminders> {
     });
     setState(() {
       _reminders = reminders;
+      _filteredReminders = List.from(_reminders);
+      if (_searchController.text.isNotEmpty) {
+        _onSearchChanged(); // Re-apply search
+      }
       _isLoading = false;
     });
   }
@@ -115,6 +142,11 @@ class _RemindersState extends State<Reminders> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addReminder,
+        backgroundColor: AppTheme.primary,
+        child: const Icon(Icons.add, color: Colors.white, size: 32),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -132,14 +164,15 @@ class _RemindersState extends State<Reminders> {
                     children: [
                       IconButton(onPressed: widget.onBack, icon: const Icon(Icons.arrow_back, color: AppTheme.textMain)),
                       const Text('Reminders', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textMain)),
-                      IconButton(onPressed: _addReminder, icon: const Icon(Icons.add, color: AppTheme.textMain)),
+                      const SizedBox(width: 48), // Balance the back button
                     ],
                   ),
                   const SizedBox(height: 16),
                   
                   // Search Bar
-                  const TextField(
-                    decoration: InputDecoration(
+                  TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
                       hintText: 'Search reminders...',
                       prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
                     ),
@@ -152,14 +185,14 @@ class _RemindersState extends State<Reminders> {
             Expanded(
               child: _isLoading 
                 ? const Center(child: CircularProgressIndicator())
-                : _reminders.isEmpty
+                : _filteredReminders.isEmpty
                     ? _buildEmptyState()
                     : ListView.separated(
                         padding: const EdgeInsets.all(16),
-                        itemCount: _reminders.length,
+                        itemCount: _filteredReminders.length,
                         separatorBuilder: (context, index) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
-                          final reminder = _reminders[index];
+                          final reminder = _filteredReminders[index];
                           return _ReminderCard(
                             reminder: reminder,
                             onEdit: () => _editReminder(reminder),
@@ -296,9 +329,11 @@ class _ReminderCard extends StatelessWidget {
             ),
             
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+              child: Padding(
+                padding: const EdgeInsets.only(right: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                    Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -320,6 +355,7 @@ class _ReminderCard extends StatelessWidget {
                       ),
                       if (badgeText.isNotEmpty)
                         Container(
+                          margin: const EdgeInsets.only(left: 8),
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                             color: badgeColor,
@@ -340,14 +376,22 @@ class _ReminderCard extends StatelessWidget {
                     children: [
                       Icon(icon, size: 16, color: AppTheme.textSecondary),
                       const SizedBox(width: 8),
-                      Text('$formattedDate  •  $formattedTime', style: const TextStyle(color: AppTheme.textSecondary)),
+                      Expanded(
+                        child: Text(
+                          '$formattedDate  •  $formattedTime', 
+                          style: const TextStyle(color: AppTheme.textSecondary),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
+          ),
             
-            PopupMenuButton<String>(
+          PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert, color: AppTheme.textSecondary),
               padding: EdgeInsets.zero,
               onSelected: (value) {

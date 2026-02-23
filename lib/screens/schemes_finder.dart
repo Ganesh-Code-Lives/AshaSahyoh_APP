@@ -18,11 +18,19 @@ class _SchemesFinderState extends State<SchemesFinder> {
   List<dynamic> _schemes = [];
   List<dynamic> _filtered = [];
   bool _loading = true;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _loadSchemes();
+    _searchController.addListener(_onSearch);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSchemes() async {
@@ -40,8 +48,8 @@ class _SchemesFinderState extends State<SchemesFinder> {
     }
   }
 
-  void _onSearch(String q) {
-    final term = q.trim().toLowerCase();
+  void _onSearch() {
+    final term = _searchController.text.trim().toLowerCase();
     if (term.isEmpty) {
       setState(() => _filtered = List.from(_schemes));
       return;
@@ -84,7 +92,7 @@ class _SchemesFinderState extends State<SchemesFinder> {
 
                   // Search Bar
                   TextField(
-                    onChanged: _onSearch,
+                    controller: _searchController,
                     decoration: const InputDecoration(
                       hintText: 'Search disability schemes...',
                       prefixIcon: null,
@@ -193,7 +201,7 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-class _SchemeCard extends StatelessWidget {
+class _SchemeCard extends StatefulWidget {
   final String title;
   final String department;
   final String description;
@@ -207,6 +215,13 @@ class _SchemeCard extends StatelessWidget {
     required this.readAloudColor,
     required this.readAloudBg,
   });
+
+  @override
+  State<_SchemeCard> createState() => _SchemeCardState();
+}
+
+class _SchemeCardState extends State<_SchemeCard> {
+  bool _isBookmarked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -223,14 +238,26 @@ class _SchemeCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: Text(title, style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 16))),
-              const Icon(Icons.bookmark_border, color: AppTheme.textSecondary),
+              Expanded(child: Text(widget.title, style: const TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 16))),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(
+                  _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                  color: _isBookmarked ? AppTheme.primary : AppTheme.textSecondary,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isBookmarked = !_isBookmarked;
+                  });
+                },
+              ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(department, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+          Text(widget.department, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
           const SizedBox(height: 12),
-          Text(description, style: const TextStyle(color: AppTheme.textMain)),
+          Text(widget.description, style: const TextStyle(color: AppTheme.textMain)),
           const SizedBox(height: 16),
           
           InkWell(
@@ -239,15 +266,15 @@ class _SchemeCard extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: readAloudBg,
+                color: widget.readAloudBg,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.volume_up, size: 16, color: readAloudColor),
+                  Icon(Icons.volume_up, size: 16, color: widget.readAloudColor),
                   const SizedBox(width: 8),
-                  Text('Read Aloud', style: TextStyle(color: readAloudColor, fontWeight: FontWeight.w500)),
+                  Text('Read Aloud', style: TextStyle(color: widget.readAloudColor, fontWeight: FontWeight.w500)),
                 ],
               ),
             ),

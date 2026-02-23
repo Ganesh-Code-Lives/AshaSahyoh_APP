@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 
 class Support extends StatelessWidget {
@@ -87,14 +88,23 @@ class Support extends StatelessWidget {
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
                               color: const Color(0xFFEA3336),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
-                              "Call 112",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => launchUrl(Uri.parse('tel:112')),
+                                borderRadius: BorderRadius.circular(8),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  child: Text(
+                                    "Call 112",
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                  ),
+                                ),
+                              ),
                             ),
                           )
                         ],
@@ -246,7 +256,7 @@ class _EmergencyCard extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
-          onTap: () {},
+          onTap: () => launchUrl(Uri.parse('tel:${number.replaceAll(RegExp(r'[^0-9]'), '')}')),
           borderRadius: BorderRadius.circular(20),
           splashColor: colorTheme.withOpacity(0.1),
           child: Padding(
@@ -377,7 +387,7 @@ class _HelplineCard extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () {},
+                onTap: () => launchUrl(Uri.parse('tel:${number.replaceAll(RegExp(r'[^0-9]'), '')}')),
                 borderRadius: BorderRadius.circular(20),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
