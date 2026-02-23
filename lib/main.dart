@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
+import 'services/notification_service.dart';
 import 'screens/intro_screen.dart';
 import 'screens/language_selection.dart';
 import 'screens/mobile_number_input.dart';
@@ -13,6 +14,9 @@ import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize notifications
+  await NotificationService().init();
   
   // Initialize Supabase
   await Supabase.initialize(
