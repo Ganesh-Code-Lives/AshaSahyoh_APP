@@ -8,6 +8,7 @@ import 'screens/intro_screen.dart';
 import 'screens/language_selection.dart';
 import 'screens/mobile_number_input.dart';
 import 'screens/otp_verification.dart';
+import 'screens/auth_choice.dart';
 import 'screens/personal_details.dart';
 import 'screens/disability_details.dart';
 import 'screens/home_screen.dart';
@@ -59,7 +60,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   // Application State
   late bool isAuthenticated;
-  String onboardingScreen = 'intro'; 
+  String onboardingScreen = 'intro';
+  bool _isLoginFlow = false; // tracks whether user chose login or signup
   
   // User Data State
   String language = '';
@@ -77,10 +79,23 @@ class _MyAppState extends State<MyApp> {
     if (widget.isLoggedIn && !widget.hasCompletedProfile) {
        onboardingScreen = 'personal'; // Re-start at details if phone is already verified
     }
+
+    // If user has completed profile but not currently logged in, we want to
+    // show the auth choice screen so they can either login or sign up again.
+    if (!widget.isLoggedIn && widget.hasCompletedProfile) {
+      onboardingScreen = 'authChoice';
+    }
   }
 
   void _completeIntro() {
-    setState(() => onboardingScreen = 'language');
+    setState(() => onboardingScreen = 'authChoice');
+  }
+
+  void _completeAuthChoice(bool isLogin) {
+    setState(() {
+      _isLoginFlow = isLogin;
+      onboardingScreen = 'language';
+    });
   }
 
   void _completeLanguage(String selectedLanguage) {
@@ -97,11 +112,44 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _completeOtp() {
-    setState(() {
-      // Don't set isAuthenticated = true yet!
-      onboardingScreen = 'personal'; 
-    });
+  void _completeOtp() async {
+    // After OTP verification we branch based on whether the user was trying to
+    // log in or sign up.
+    if (_isLoginFlow) {
+      final prefs = await SharedPreferences.getInstance();
+      final hasProfile = prefs.getBool('hasCompletedProfile') ?? false;
+      if (hasProfile) {
+        // load stored profile data
+        personalData = {
+          'fullName': prefs.getString('fullName'),
+          'email': prefs.getString('email'),
+          'dateOfBirth': prefs.getString('dateOfBirth'),
+          'gender': prefs.getString('gender'),
+          'address': prefs.getString('address'),
+        };
+        disabilityData = {
+          'hasDisability': prefs.getBool('hasDisability') ?? false,
+          'disabilityType': prefs.getString('disabilityType'),
+          'disabilityPercentage': prefs.getString('disabilityPercentage'),
+          'certificateNumber': prefs.getString('certificateNumber'),
+          'assistiveDevices': prefs.getStringList('assistiveDevices'),
+        };
+        setState(() {
+          isAuthenticated = true;
+        });
+      } else {
+        // phone not registered yet, treat as normal signup
+        setState(() {
+          onboardingScreen = 'personal';
+        });
+      }
+    } else {
+      setState(() {
+        onboardingScreen = 'personal';
+      });
+    }
+    // once used, reset login flag so it won't affect future flows
+    _isLoginFlow = false;
   }
 
   void _completePersonal(Map<String, dynamic> data) {
@@ -122,9 +170,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _handleLogout() async {
+    // Only remove the logged in flag; keep profile data for future logins
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Using clear() as requested in Step 7
-    
+    await prefs.remove('isLoggedIn');
+    // optionally prefs.remove('phoneNumber');
+
     setState(() {
       isAuthenticated = false;
       onboardingScreen = 'intro';
@@ -155,15 +205,18 @@ class _MyAppState extends State<MyApp> {
     switch (onboardingScreen) {
       case 'intro':
         return IntroScreen(onStart: _completeIntro);
+      case 'authChoice':
+        return AuthChoice(onChosen: _completeAuthChoice);
       case 'language':
         return LanguageSelection(onComplete: _completeLanguage);
       case 'mobile':
         return MobileNumberInput(onComplete: _completeMobile);
       case 'otp':
         return OTPVerification(
-          mobile: mobileNumber, 
+          mobile: mobileNumber,
           verificationId: 'TWILIO_VERIFY',
-          onComplete: _completeOtp
+          isLogin: _isLoginFlow,
+          onComplete: _completeOtp,
         );
       case 'personal':
         return PersonalDetails(onComplete: _completePersonal);

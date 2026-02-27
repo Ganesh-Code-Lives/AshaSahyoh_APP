@@ -9,12 +9,14 @@ class OTPVerification extends StatefulWidget {
   final String mobile;
   final String verificationId;
   final Function() onComplete;
+  final bool isLogin; // indicates whether this is a login attempt
 
   const OTPVerification({
-    super.key, 
-    required this.mobile, 
+    super.key,
+    required this.mobile,
     required this.verificationId,
-    required this.onComplete
+    required this.onComplete,
+    this.isLogin = false,
   });
 
   @override
@@ -34,12 +36,10 @@ class _OTPVerificationState extends State<OTPVerification> {
   int _start = 30;
   bool _isResendAvailable = false;
 
-  late String _currentVerificationId;
 
   @override
   void initState() {
     super.initState();
-    _currentVerificationId = widget.verificationId;
     _startTimer();
   }
 
@@ -85,6 +85,16 @@ class _OTPVerificationState extends State<OTPVerification> {
     });
 
     try {
+      // if this is a login flow, make sure the phone is already registered
+      if (widget.isLogin) {
+        final prefs = await SharedPreferences.getInstance();
+        final hasProfile = prefs.getBool('hasCompletedProfile') ?? false;
+        final storedPhone = prefs.getString('phoneNumber');
+        if (!hasProfile || storedPhone != widget.mobile) {
+          throw 'This number is not registered. Please sign up first.';
+        }
+      }
+
       bool success = await _authService.verifyOtp('+91${widget.mobile}', otp);
       
       if (success && mounted) {

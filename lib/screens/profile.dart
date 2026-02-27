@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
 import '../models/user_models.dart';
+import 'personal_details.dart';
+import 'disability_details.dart';
 
 class Profile extends StatefulWidget {
   final VoidCallback onBack;
@@ -33,10 +35,24 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   String? _profileImageBase64;
   bool _isAvatarPressed = false;
 
+  // profile fields stored locally for display and editing
+  String fullName = '';
+  String email = '';
+  String dateOfBirth = '';
+  String gender = '';
+  String address = '';
+  bool hasDisability = false;
+  String disabilityType = '';
+  String disabilityPercentage = '';
+  String certificateNumber = '';
+  List<String> assistiveDevices = [];
+  String? mobile;
+
   @override
   void initState() {
     super.initState();
     _loadProfileImage();
+    _loadProfileData();
     _controller = AnimationController(
       duration: const Duration(milliseconds: 700),
       vsync: this,
@@ -72,6 +88,23 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _profileImageBase64 = prefs.getString('profileImageBase64');
+    });
+  }
+
+  Future<void> _loadProfileData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      fullName = prefs.getString('fullName') ?? 'AshaSahyog User';
+      email = prefs.getString('email') ?? 'user@example.com';
+      dateOfBirth = prefs.getString('dateOfBirth') ?? '';
+      gender = prefs.getString('gender') ?? '';
+      address = prefs.getString('address') ?? '';
+      hasDisability = prefs.getBool('hasDisability') ?? false;
+      disabilityType = prefs.getString('disabilityType') ?? '';
+      disabilityPercentage = prefs.getString('disabilityPercentage') ?? '';
+      certificateNumber = prefs.getString('certificateNumber') ?? '';
+      assistiveDevices = prefs.getStringList('assistiveDevices') ?? [];
+      mobile = prefs.getString('phoneNumber');
     });
   }
 
@@ -118,6 +151,61 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       }
     } catch (e) {
       debugPrint("Image picking failed: $e");
+    }
+  }
+
+  Future<void> _openEditOptions() async {
+    final choice = await showModalBottomSheet<int>(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Edit Personal Info'),
+              onTap: () => Navigator.pop(context, 0),
+            ),
+            ListTile(
+              leading: const Icon(Icons.accessible),
+              title: const Text('Edit Disability Info'),
+              onTap: () => Navigator.pop(context, 1),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (choice == 0) {
+      await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => PersonalDetails(
+          onComplete: (_) {},
+          initialData: {
+            'fullName': fullName,
+            'email': email,
+            'dateOfBirth': dateOfBirth,
+            'gender': gender,
+            'address': address,
+          },
+          isEditing: true,
+        ),
+      ));
+      _loadProfileData();
+    } else if (choice == 1) {
+      await Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => DisabilityDetails(
+          onComplete: (_) {},
+          initialData: {
+            'hasDisability': hasDisability,
+            'disabilityType': disabilityType,
+            'disabilityPercentage': disabilityPercentage,
+            'certificateNumber': certificateNumber,
+            'assistiveDevices': assistiveDevices,
+          },
+          isEditing: true,
+        ),
+      ));
+      _loadProfileData();
     }
   }
 
@@ -173,7 +261,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                             ),
                             const Spacer(),
                             IconButton(
-                              onPressed: () {},
+                              onPressed: _openEditOptions,
                               icon: const Icon(Icons.settings, color: Colors.white),
                             ),
                           ],
@@ -243,7 +331,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                   // --- User Name & Email ---
                   Text(
-                    widget.personalData?.fullName ?? 'AshaSahyog User',
+                    fullName.isNotEmpty ? fullName : 'AshaSahyog User',
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -252,7 +340,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    widget.personalData?.email ?? 'user@example.com',
+                    email.isNotEmpty ? email : 'user@example.com',
                     style: const TextStyle(
                       color: Color(0xFF6B7280),
                       fontSize: 14,
@@ -270,15 +358,15 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           title: 'Personal Information',
                           icon: Icons.person_outline_rounded,
                           children: [
-                            _InfoRow(label: 'Full Name', value: widget.personalData?.fullName),
+                            _InfoRow(label: 'Full Name', value: fullName),
                             _InfoDivider(),
-                            _InfoRow(label: 'Mobile', value: widget.mobile != null ? '+91 ${widget.mobile}' : null),
+                            _InfoRow(label: 'Mobile', value: mobile != null ? '+91 $mobile' : null),
                             _InfoDivider(),
-                            _InfoRow(label: 'Date of Birth', value: widget.personalData?.dateOfBirth?.toLocal().toString().split(' ')[0]),
+                            _InfoRow(label: 'Date of Birth', value: dateOfBirth.isNotEmpty ? DateTime.tryParse(dateOfBirth)?.toLocal().toString().split(' ')[0] : null),
                             _InfoDivider(),
-                            _InfoRow(label: 'Gender', value: widget.personalData?.gender),
+                            _InfoRow(label: 'Gender', value: gender),
                             _InfoDivider(),
-                            _InfoRow(label: 'Address', value: widget.personalData?.address, isLast: true),
+                            _InfoRow(label: 'Address', value: address, isLast: true),
                           ],
                         ),
 
@@ -289,12 +377,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                           title: 'Disability Details',
                           icon: Icons.accessible_forward_rounded,
                           children: [
-                            if (widget.disabilityData?.hasDisability == true) ...[
-                              _InfoRow(label: 'Type', value: widget.disabilityData?.disabilityType),
+                            if (hasDisability) ...[
+                              _InfoRow(label: 'Type', value: disabilityType),
                               _InfoDivider(),
-                              _InfoRow(label: 'Percentage', value: widget.disabilityData?.percentage != null ? '${widget.disabilityData!.percentage}%' : null),
+                              _InfoRow(label: 'Percentage', value: disabilityPercentage.isNotEmpty ? '$disabilityPercentage%' : null),
                               _InfoDivider(),
-                              _InfoRow(label: 'Cert. Number', value: widget.disabilityData?.certificateNumber, isLast: true),
+                              _InfoRow(label: 'Cert. Number', value: certificateNumber, isLast: true),
                             ] else
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 8),
@@ -321,13 +409,7 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 title: 'Language & Accessibility',
                               ),
                               Divider(height: 1, color: AppTheme.border, indent: 56, endIndent: 20),
-                              _SettingsTile(
-                                icon: Icons.lock_outline_rounded,
-                                color: const Color(0xFFBE185D), 
-                                bgColor: const Color(0xFFFCE7F3), 
-                                title: 'Change Password',
-                              ),
-                              Divider(height: 1, color: AppTheme.border, indent: 56, endIndent: 20),
+                              // removed change password option as per requirements
                               _SettingsTile(
                                 icon: Icons.help_outline_rounded,
                                 color: const Color(0xFF059669), 

@@ -4,8 +4,15 @@ import '../theme/app_theme.dart';
 
 class PersonalDetails extends StatefulWidget {
   final Function(Map<String, dynamic>) onComplete;
+  final Map<String, dynamic>? initialData;
+  final bool isEditing;
 
-  const PersonalDetails({super.key, required this.onComplete});
+  const PersonalDetails({
+    super.key,
+    required this.onComplete,
+    this.initialData,
+    this.isEditing = false,
+  });
 
   @override
   State<PersonalDetails> createState() => _PersonalDetailsState();
@@ -19,6 +26,19 @@ class _PersonalDetailsState extends State<PersonalDetails> {
   final _dateOfBirthController = TextEditingController();
   String _gender = '';
   final _addressController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialData != null) {
+      final data = widget.initialData!;
+      _fullNameController.text = data['fullName'] ?? '';
+      _emailController.text = data['email'] ?? '';
+      _dateOfBirthController.text = data['dateOfBirth'] ?? '';
+      _gender = data['gender'] ?? '';
+      _addressController.text = data['address'] ?? '';
+    }
+  }
   
   // To update UI on change to enable/disable button
   void _updateState() {
@@ -61,6 +81,11 @@ class _PersonalDetailsState extends State<PersonalDetails> {
         'gender': _gender,
         'address': _addressController.text,
       });
+
+      if (widget.isEditing) {
+        // when editing we simply pop back to previous screen
+        Navigator.of(context).pop(true);
+      }
     }
   }
 

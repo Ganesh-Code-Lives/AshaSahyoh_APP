@@ -4,8 +4,15 @@ import '../theme/app_theme.dart';
 
 class DisabilityDetails extends StatefulWidget {
   final Function(Map<String, dynamic>) onComplete;
+  final Map<String, dynamic>? initialData;
+  final bool isEditing;
 
-  const DisabilityDetails({super.key, required this.onComplete});
+  const DisabilityDetails({
+    super.key,
+    required this.onComplete,
+    this.initialData,
+    this.isEditing = false,
+  });
 
   @override
   State<DisabilityDetails> createState() => _DisabilityDetailsState();
@@ -17,6 +24,21 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
   final _percentageController = TextEditingController();
   final _certificateController = TextEditingController();
   final List<String> _selectedDevices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialData != null) {
+      final data = widget.initialData!;
+      _hasDisability = data['hasDisability'] == true;
+      _disabilityType = data['disabilityType'] ?? '';
+      _percentageController.text = data['disabilityPercentage'] ?? '';
+      _certificateController.text = data['certificateNumber'] ?? '';
+      if (data['assistiveDevices'] is List<String>) {
+        _selectedDevices.addAll(List<String>.from(data['assistiveDevices']));
+      }
+    }
+  }
 
   final List<String> _availableDevices = [
     "Wheelchair",
@@ -52,6 +74,10 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
       'certificateNumber': _certificateController.text,
       'assistiveDevices': _selectedDevices,
     });
+
+    if (widget.isEditing) {
+      Navigator.of(context).pop(true);
+    }
   }
 
   @override

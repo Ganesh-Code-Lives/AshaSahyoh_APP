@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
-import 'otp_verification.dart';
 
 class MobileNumberInput extends StatefulWidget {
   final Function(String, String) onComplete;
