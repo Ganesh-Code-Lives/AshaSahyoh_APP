@@ -50,8 +50,7 @@ class _RemindersState extends State<Reminders> {
   Future<void> _loadReminders() async {
     setState(() => _isLoading = true);
     final reminders = await ReminderService.loadReminders();
-    // Sort by date/time ascending
-    reminders.sort((a, b) {
+      reminders.sort((a, b) {
       final aDateTime = DateTime(a.date.year, a.date.month, a.date.day, a.time.hour, a.time.minute);
       final bDateTime = DateTime(b.date.year, b.date.month, b.date.day, b.time.hour, b.time.minute);
       return aDateTime.compareTo(bDateTime);
@@ -60,7 +59,7 @@ class _RemindersState extends State<Reminders> {
       _reminders = reminders;
       _filteredReminders = List.from(_reminders);
       if (_searchController.text.isNotEmpty) {
-        _onSearchChanged(); // Re-apply search
+        _onSearchChanged();
       }
       _isLoading = false;
     });
@@ -150,7 +149,6 @@ class _RemindersState extends State<Reminders> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -164,12 +162,11 @@ class _RemindersState extends State<Reminders> {
                     children: [
                       IconButton(onPressed: widget.onBack, icon: const Icon(Icons.arrow_back, color: AppTheme.textMain)),
                       const Text('Reminders', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textMain)),
-                      const SizedBox(width: 48), // Balance the back button
+                      const SizedBox(width: 48),
                     ],
                   ),
                   const SizedBox(height: 16),
                   
-                  // Search Bar
                   TextField(
                     controller: _searchController,
                     decoration: const InputDecoration(
@@ -181,7 +178,6 @@ class _RemindersState extends State<Reminders> {
               ),
             ),
             
-            // Reminders List
             Expanded(
               child: _isLoading 
                 ? const Center(child: CircularProgressIndicator())
@@ -312,7 +308,6 @@ class _ReminderCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Status Dot / Check
             GestureDetector(
               onTap: onToggleComplete,
               child: Container(

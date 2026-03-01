@@ -6,7 +6,6 @@ import 'notification_service.dart';
 class ReminderService {
   static const String _remindersKey = 'saved_reminders';
 
-  // Load all reminders
   static Future<List<Reminder>> loadReminders() async {
     final prefs = await SharedPreferences.getInstance();
     final String? remindersJson = prefs.getString(_remindersKey);
@@ -22,24 +21,20 @@ class ReminderService {
     }
   }
 
-  // Save all reminders
   static Future<void> saveReminders(List<Reminder> reminders) async {
     final prefs = await SharedPreferences.getInstance();
     final String encoded = json.encode(reminders.map((r) => r.toJson()).toList());
     await prefs.setString(_remindersKey, encoded);
   }
 
-  // Generate a stable integer ID for notifications
   static int _getNotificationId(String uuid) {
     final cleanUuid = uuid.replaceAll('-', '');
     if (cleanUuid.length < 7) {
       return cleanUuid.hashCode;
     }
-    // Use the first 7 characters of the UUID to create a stable integer (max 0xFFFFFFF)
     return int.parse(cleanUuid.substring(0, 7), radix: 16);
   }
 
-  // Schedule a notification
   static void _scheduleNotificationForReminder(Reminder reminder) {
     if (reminder.isCompleted) return;
 
@@ -58,7 +53,7 @@ class ReminderService {
       } else if (reminder.repeatType == RepeatType.weekly) {
         scheduledTime = scheduledTime.add(const Duration(days: 7));
       } else {
-        return; 
+        return;
       }
     }
 
@@ -77,7 +72,6 @@ class ReminderService {
     );
   }
 
-  // Add a reminder
   static Future<void> addReminder(Reminder reminder) async {
     final reminders = await loadReminders();
     reminders.add(reminder);
@@ -85,7 +79,6 @@ class ReminderService {
     _scheduleNotificationForReminder(reminder);
   }
 
-  // Update a reminder
   static Future<void> updateReminder(Reminder updatedReminder) async {
     final reminders = await loadReminders();
     final index = reminders.indexWhere((r) => r.id == updatedReminder.id);
@@ -97,7 +90,6 @@ class ReminderService {
     }
   }
 
-  // Delete a reminder
   static Future<void> deleteReminder(String id) async {
     final reminders = await loadReminders();
     reminders.removeWhere((r) => r.id == id);

@@ -12,6 +12,8 @@ import 'profile.dart';
 import 'support.dart';
 import 'emergency_sos.dart';
 import '../models/user_models.dart';
+import '../models/reminder.dart';
+import '../services/reminder_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final Map<String, dynamic>? personalData;
@@ -25,9 +27,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String currentScreen = 'home'; 
+  String currentScreen = 'home';
   
   String fullName = 'User';
+  List<Reminder> _todayReminders = [];
   String phoneNumber = '';
   String email = '';
   String dateOfBirth = '';
@@ -43,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadProfile();
+    _loadTodayReminders();
   }
 
   Future<void> _loadProfile() async {
@@ -62,9 +66,49 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _loadTodayReminders() async {
+    final all = await ReminderService.loadReminders();
+    final today = DateTime.now();
+    setState(() {
+      _todayReminders = all.where((r) {
+        if (r.isCompleted) return false;
+        if (r.repeatType == RepeatType.daily) return true;
+        if (r.repeatType == RepeatType.weekly) {
+          return r.date.weekday == today.weekday;
+        }
+        return r.date.year == today.year && r.date.month == today.month && r.date.day == today.day;
+      }).toList();
+    });
+  }
+
+  Widget _buildTodayReminderCard(Reminder r) {
+    Color bgColor;
+    Color iconColor;
+    IconData icon;
+    switch (r.colorTag) {
+      case 'appointment':
+        bgColor = const Color(0xFFC4B5FD);
+        iconColor = AppTheme.primary;
+        icon = Icons.calendar_today;
+        break;
+      case 'medication':
+        bgColor = const Color(0xFFD1FAE5);
+        iconColor = const Color(0xFF059669);
+        icon = Icons.local_hospital;
+        break;
+      default:
+        bgColor = const Color(0xFFFBCFE8);
+        iconColor = const Color(0xFFBE185D);
+        icon = Icons.event;
+    }
+    final subtitle = 'Today at ${r.time.format(context)}';
+    return _buildGlanceCard(r.title, subtitle, icon, bgColor, iconColor);
+  }
+
   void _navigate(String screen) {
      if (screen == 'home') {
        _loadProfile();
+       _loadTodayReminders();
      }
      setState(() {
        currentScreen = screen;
@@ -73,13 +117,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Basic scaffold for Home, we can expand later for other screens
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Center(
         child: Container(
            constraints: const BoxConstraints(maxWidth: 480),
-           // Mimic the app-screen class
            margin: const EdgeInsets.symmetric(horizontal: 0), 
            decoration: const BoxDecoration(
              color: AppTheme.background,
@@ -98,7 +140,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
-     // TODO: Implement other screens
     if (currentScreen == 'schemes') return SchemesFinder(onBack: () => _navigate('home'));
     if (currentScreen == 'hospitals') return HospitalLocator(onBack: () => _navigate('home'));
     if (currentScreen == 'documents') return DocumentVault(onBack: () => _navigate('home'));
@@ -127,12 +168,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (currentScreen == 'support') return Support(onBack: () => _navigate('home'));
     if (currentScreen == 'sos') return EmergencySOS(onBack: () => _navigate('home'));
 
-     // Default: Home Dashboard
      return SingleChildScrollView(
        child: Column(
          crossAxisAlignment: CrossAxisAlignment.start,
          children: [
-             // Header
              Container(
                width: double.infinity,
                decoration: const BoxDecoration(
@@ -154,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                Text(
                                  'Welcome Back,',
                                  style: TextStyle(
-                                   color: Color(0xFF6E29DA), // Branded Purple
+                                   color: Color(0xFF6E29DA),
                                    fontSize: 16,
                                    fontWeight: FontWeight.bold,
                                  ),
@@ -165,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                  style: const TextStyle(
                                    fontSize: 18, 
                                    fontWeight: FontWeight.bold, 
-                                   color: Color(0xFF1F2937), // Dark Charcoal
+                                   color: Color(0xFF1F2937),
                                  ),
                                  maxLines: 2,
                                  overflow: TextOverflow.ellipsis,
@@ -174,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Text(
                                  'How can we help you today?',
                                  style: TextStyle(
-                                   color: Color(0xFF9CA3AF), // Light Grey
+                                   color: Color(0xFF9CA3AF),
                                    fontSize: 13,
                                  ),
                                ),
@@ -188,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                              width: 48,
                              height: 48,
                              decoration: BoxDecoration(
-                               color: const Color(0xFFF3E8FF), // Very light purple bg
+                               color: const Color(0xFFF3E8FF),
                                shape: BoxShape.circle,
                                border: Border.all(color: const Color(0xFFE9D5FF), width: 1),
                              ),
@@ -210,7 +249,6 @@ class _HomeScreenState extends State<HomeScreen> {
              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
              child: Column(
                children: [
-                 // Quick Actions Grid
                   GridView(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
@@ -225,29 +263,29 @@ class _HomeScreenState extends State<HomeScreen> {
                      _buildQuickActionCard(
                        'Find\nSchemes',
                        Icons.description,
-                       const Color(0xFFC4B5FD), // Light Purple
+                       const Color(0xFFC4B5FD),
                        AppTheme.primary,
                        () => _navigate('schemes'),
                      ),
                      _buildQuickActionCard(
                        'Nearby\nHospitals',
                        Icons.add,
-                       const Color(0xFFA7F3D0), // Light Green
-                       const Color(0xFF059669), // Green
+                       const Color(0xFFA7F3D0),
+                       const Color(0xFF059669),
                        () => _navigate('hospitals'),
                      ),
                      _buildQuickActionCard(
                        'My\nDocuments',
                        Icons.folder,
-                       const Color(0xFFBAE6FD), // Light Blue
-                       const Color(0xFF0284C7), // Blue
+                       const Color(0xFFBAE6FD),
+                       const Color(0xFF0284C7),
                        () => _navigate('documents'),
                      ),
                      _buildQuickActionCard(
                        'My\nReminders',
                        Icons.notifications,
-                       const Color(0xFFFBCFE8), // Light Pink
-                       const Color(0xFFBE185D), // Pink
+                       const Color(0xFFFBCFE8),
+                       const Color(0xFFBE185D),
                        () => _navigate('reminders'),
                      ),
                    ],
@@ -255,32 +293,39 @@ class _HomeScreenState extends State<HomeScreen> {
 
                  const SizedBox(height: 24),
 
-                 // Today at a Glance
-                 const Align(
+const Align(
                    alignment: Alignment.centerLeft,
                    child: Text('Today at a Glance', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textMain)),
                  ),
                  const SizedBox(height: 16),
-                 
-                 _buildGlanceCard(
-                   'Doctor\'s Appointment',
-                   'Today at 2:00 PM',
-                   Icons.calendar_today,
-                   const Color(0xFFC4B5FD),
-                   AppTheme.primary,
-                 ),
-                 const SizedBox(height: 12),
-                 _buildGlanceCard(
-                   'Disability Certificate Renewal',
-                   'Due in 5 days',
-                   Icons.warning,
-                   const Color(0xFFFBCFE8), // Pink
-                   const Color(0xFFBE185D),
-                 ),
+                 if (_todayReminders.isEmpty)
+                   Container(
+                     width: double.infinity,
+                     padding: const EdgeInsets.all(16),
+                     decoration: BoxDecoration(
+                       color: Colors.white,
+                       border: Border.all(color: AppTheme.border, width: 2),
+                       borderRadius: BorderRadius.circular(12),
+                     ),
+                     child: const Center(
+                       child: Text('Today seems a rest day !', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+                     ),
+                   )
+                 else
+                   Column(
+                     children: List.generate(_todayReminders.length, (index) {
+                       final r = _todayReminders[index];
+                       return Column(
+                         children: [
+                           _buildTodayReminderCard(r),
+                           if (index < _todayReminders.length - 1) const SizedBox(height: 12),
+                         ],
+                       );
+                     }),
+                   ),
 
                  const SizedBox(height: 24),
                  
-                 // Recommended Schemes
                  const Align(
                    alignment: Alignment.centerLeft,
                    child: Text('Recommended Schemes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textMain)),
@@ -354,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: 38, // Force exactly two lines of height
+              height: 38,
               child: Text(
                 title, 
                 style: const TextStyle(

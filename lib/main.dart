@@ -16,13 +16,11 @@ import 'screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notifications
   await NotificationService().init();
   
-  // Initialize Supabase
   await Supabase.initialize(
-    url: 'https://kfrgkhhsnyqqvqtwimbx.supabase.co', // TODO: Replace with your Supabase URL
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcmdraGhzbnlxcXZxdHdpbWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTEyNTgsImV4cCI6MjA4NjYyNzI1OH0.pOSmrezElecOcCm6ANJ81nO_WN9wnc_EdLq1mwAmXZU', // TODO: Replace with your Supabase Anon Key
+    url: 'https://kfrgkhhsnyqqvqtwimbx.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcmdraGhzbnlxcXZxdHdpbWJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNTEyNTgsImV4cCI6MjA4NjYyNzI1OH0.pOSmrezElecOcCm6ANJ81nO_WN9wnc_EdLq1mwAmXZU',
   );
   print("Supabase Initialized");
   
@@ -30,7 +28,6 @@ void main() async {
   final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
   final hasCompletedProfile = prefs.getBool('hasCompletedProfile') ?? false;
 
-  // Set global system UI overlays
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -53,17 +50,26 @@ class MyApp extends StatefulWidget {
     required this.hasCompletedProfile,
   });
 
+  static _MyAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>();
+
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  // Application State
   late bool isAuthenticated;
   String onboardingScreen = 'intro';
-  bool _isLoginFlow = false; // tracks whether user chose login or signup
-  
-  // User Data State
+  bool _isLoginFlow = false;
+  bool _isGrayscale = false;
+
+  bool get isGrayscale => _isGrayscale;
+  void toggleGrayscale() async {
+    setState(() => _isGrayscale = !_isGrayscale);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isGrayscale', _isGrayscale);
+  }
+
   String language = '';
   String mobileNumber = '';
   Map<String, dynamic>? personalData;
@@ -72,19 +78,22 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // User is only fully authenticated if they logged in AND completed onboarding
-    isAuthenticated = widget.isLoggedIn && widget.hasCompletedProfile;
-    
-    // If logged in but onboarding not complete, start at mobile/otp/details depending on state
-    if (widget.isLoggedIn && !widget.hasCompletedProfile) {
-       onboardingScreen = 'personal'; // Re-start at details if phone is already verified
-    }
+    _loadPrefs();
 
-    // If user has completed profile but not currently logged in, we want to
-    // show the auth choice screen so they can either login or sign up again.
+    isAuthenticated = widget.isLoggedIn && widget.hasCompletedProfile;
+    if (widget.isLoggedIn && !widget.hasCompletedProfile) {
+      onboardingScreen = 'personal';
+    }
     if (!widget.isLoggedIn && widget.hasCompletedProfile) {
       onboardingScreen = 'authChoice';
     }
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isGrayscale = prefs.getBool('isGrayscale') ?? false;
+    });
   }
 
   void _completeIntro() {
@@ -113,13 +122,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _completeOtp() async {
-    // After OTP verification we branch based on whether the user was trying to
-    // log in or sign up.
     if (_isLoginFlow) {
       final prefs = await SharedPreferences.getInstance();
       final hasProfile = prefs.getBool('hasCompletedProfile') ?? false;
       if (hasProfile) {
-        // load stored profile data
         personalData = {
           'fullName': prefs.getString('fullName'),
           'email': prefs.getString('email'),
@@ -138,7 +144,6 @@ class _MyAppState extends State<MyApp> {
           isAuthenticated = true;
         });
       } else {
-        // phone not registered yet, treat as normal signup
         setState(() {
           onboardingScreen = 'personal';
         });
@@ -148,7 +153,6 @@ class _MyAppState extends State<MyApp> {
         onboardingScreen = 'personal';
       });
     }
-    // once used, reset login flag so it won't affect future flows
     _isLoginFlow = false;
   }
 
@@ -165,15 +169,13 @@ class _MyAppState extends State<MyApp> {
     
     setState(() {
       disabilityData = data;
-      isAuthenticated = true; // Finally enter the Dashboard
+      isAuthenticated = true;
     });
   }
 
   void _handleLogout() async {
-    // Only remove the logged in flag; keep profile data for future logins
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
-    // optionally prefs.remove('phoneNumber');
 
     setState(() {
       isAuthenticated = false;
@@ -198,6 +200,33 @@ class _MyAppState extends State<MyApp> {
               onLogout: _handleLogout,
             )
           : _buildOnboardingFlow(),
+      builder: (context, child) {
+        Widget app = child!;
+        if (_isGrayscale) {
+          app = ColorFiltered(
+            colorFilter: const ColorFilter.matrix(<double>[
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0.2126, 0.7152, 0.0722, 0, 0,
+              0, 0, 0, 1, 0,
+            ]),
+            child: app,
+          );
+        }
+        return Stack(
+          children: [
+            app,
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 8,
+              right: 8,
+              child: Material(
+                type: MaterialType.transparency,
+                child: _ThemeToggleButton(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -217,6 +246,12 @@ class _MyAppState extends State<MyApp> {
           verificationId: 'TWILIO_VERIFY',
           isLogin: _isLoginFlow,
           onComplete: _completeOtp,
+          onBack: () {
+            setState(() {
+              onboardingScreen = 'mobile';
+              mobileNumber = '';
+            });
+          },
         );
       case 'personal':
         return PersonalDetails(onComplete: _completePersonal);
@@ -225,5 +260,35 @@ class _MyAppState extends State<MyApp> {
       default:
         return IntroScreen(onStart: _completeIntro);
     }
+  }
+}
+
+class _ThemeToggleButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final appState = MyApp.of(context)!;
+    final isGray = appState.isGrayscale;
+    return InkWell(
+      onTap: appState.toggleGrayscale,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(isGray ? Icons.filter_b_and_w : Icons.palette,
+                size: 18, color: AppTheme.primary),
+            const SizedBox(width: 4),
+            Text(isGray ? 'Normal' : 'Grayscale',
+                style: TextStyle(color: AppTheme.textMain, fontSize: 14)),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -8,20 +8,20 @@ class AppTheme {
   static const Color surface = Colors.white;
   static const Color textMain = Color(0xFF111111);
   static const Color textSecondary = Color(0xFF6B7280);
-  static const Color border = Color(0xFFE9D5FF); // Soft purple border
-  static const Color inputBorder = Color(0xFFE5E7EB); // Subtle input border
+  static const Color border = Color(0xFFE9D5FF);
+  static const Color inputBorder = Color(0xFFE5E7EB);
   static const Color error = Color(0xFFDC2626);
   static const Color success = Color(0xFF10B981);
   static const Color warning = Color(0xFFF59E0B);
   
-  // Gradients
+
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF7C3AED), Color(0xFF6D28D9)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Specific UI colors
+
   static const Color purpleLight = Color(0xFFF4EDFC);
   static const Color purpleVeryLight = Color(0xFFF3E8FF);
   static const Color pinkLight = Color(0xFFFBCFE8);
@@ -37,10 +37,10 @@ class AppTheme {
         surface: surface,
         error: error,
       ),
-      fontFamily: 'Roboto', // Fallback to standard font
+      fontFamily: 'Roboto',
       useMaterial3: true,
       
-      // Button Styles
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primary,
@@ -57,7 +57,7 @@ class AppTheme {
         ),
       ),
       
-      // Input Styles
+
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,

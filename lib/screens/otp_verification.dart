@@ -9,7 +9,8 @@ class OTPVerification extends StatefulWidget {
   final String mobile;
   final String verificationId;
   final Function() onComplete;
-  final bool isLogin; // indicates whether this is a login attempt
+  final bool isLogin;
+  final VoidCallback? onBack;
 
   const OTPVerification({
     super.key,
@@ -17,6 +18,7 @@ class OTPVerification extends StatefulWidget {
     required this.verificationId,
     required this.onComplete,
     this.isLogin = false,
+    this.onBack,
   });
 
   @override
@@ -24,7 +26,6 @@ class OTPVerification extends StatefulWidget {
 }
 
 class _OTPVerificationState extends State<OTPVerification> {
-  // Use a list of controllers to manage the input state
   final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isComplete = false;
@@ -85,7 +86,6 @@ class _OTPVerificationState extends State<OTPVerification> {
     });
 
     try {
-      // if this is a login flow, make sure the phone is already registered
       if (widget.isLogin) {
         final prefs = await SharedPreferences.getInstance();
         final hasProfile = prefs.getBool('hasCompletedProfile') ?? false;
@@ -100,8 +100,8 @@ class _OTPVerificationState extends State<OTPVerification> {
       if (success && mounted) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('userPhone', widget.mobile); // Keeping userPhone as well for compatibility if needed
-        await prefs.setString('phoneNumber', widget.mobile); // User's requested key
+        await prefs.setString('userPhone', widget.mobile);
+        await prefs.setString('phoneNumber', widget.mobile);
         
         setState(() => _isLoading = false);
         widget.onComplete(); 
@@ -149,10 +149,9 @@ class _OTPVerificationState extends State<OTPVerification> {
         _focusNodes[index + 1].requestFocus();
       } else {
         _focusNodes[index].unfocus();
-        // Check if all digits are entered before verifying
         bool allFilled = _controllers.every((c) => c.text.isNotEmpty);
         if (allFilled) {
-           _verifyOTP(); 
+           _verifyOTP();
         }
       }
     }
@@ -162,7 +161,6 @@ class _OTPVerificationState extends State<OTPVerification> {
     });
   }
 
-  // Handle backspace manually for empty fields
   void _onKey(RawKeyEvent event, int index) {
     if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
       if (_controllers[index].text.isEmpty && index > 0) {
@@ -175,6 +173,7 @@ class _OTPVerificationState extends State<OTPVerification> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -182,7 +181,6 @@ class _OTPVerificationState extends State<OTPVerification> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Progress
                 Row(
                   children: [
                     Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2)))),
@@ -195,13 +193,20 @@ class _OTPVerificationState extends State<OTPVerification> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                
+                Row(
+                  children: [
+                    if (widget.onBack != null)
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: AppTheme.textMain),
+                        onPressed: widget.onBack,
+                      ),
+                  ],
+                ),
                 const Text('Verify Your Number', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textMain)),
                 const SizedBox(height: 8),
                 Text('Enter the 6-digit code sent to +91 ${widget.mobile}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
                 const SizedBox(height: 40),
                 
-                // OTP Inputs
                 Center(
                   child: Container(
                     constraints: const BoxConstraints(maxWidth: 400),
@@ -216,7 +221,7 @@ class _OTPVerificationState extends State<OTPVerification> {
                             child: SizedBox(
                               height: 56,
                               child: RawKeyboardListener(
-                                focusNode: FocusNode(), // Intercepts key events
+                                focusNode: FocusNode(),
                                 onKey: (event) => _onKey(event, index),
                                 child: TextField(
                                   controller: _controllers[index],
@@ -270,7 +275,6 @@ class _OTPVerificationState extends State<OTPVerification> {
                   ),
                 
                 const SizedBox(height: 32),
-                
                 Center(
                   child: TextButton(
                     onPressed: _isResendAvailable ? _resendOTP : null,
@@ -285,64 +289,73 @@ class _OTPVerificationState extends State<OTPVerification> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton(
+                    onPressed: widget.onBack,
+                    child: const Text('Got the number wrong? Re-enter it :)'),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            gradient: (_isComplete && !_isLoading) ? AppTheme.primaryGradient : null,
-            color: (_isComplete && !_isLoading) ? null : AppTheme.primary.withOpacity(0.1),
-          ),
-          child: ElevatedButton(
-            onPressed: (_isComplete && !_isLoading) ? _verifyOTP : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              foregroundColor: (_isComplete && !_isLoading) ? Colors.white : AppTheme.primary.withOpacity(0.5),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: (_isComplete && !_isLoading) ? AppTheme.primaryGradient : null,
+              color: (_isComplete && !_isLoading) ? null : AppTheme.primary.withOpacity(0.1),
             ),
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _isLoading 
-                ? const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 20, 
-                        width: 20, 
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5, 
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Verifying...', 
-                        style: TextStyle(
-                          fontSize: 16, 
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        )
-                      ),
-                    ],
-                  )
-                : const Text(
-                    'Verify & Continue', 
-                    style: TextStyle(
-                      fontSize: 16, 
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+            child: ElevatedButton(
+              onPressed: (_isComplete && !_isLoading) ? _verifyOTP : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: (_isComplete && !_isLoading) ? Colors.white : AppTheme.primary.withOpacity(0.5),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _isLoading 
+                  ? const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 20, 
+                          width: 20, 
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5, 
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Verifying...', 
+                          style: TextStyle(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          )
+                        ),
+                      ],
                     )
-                  ),
+                  : const Text(
+                      'Verify & Continue', 
+                      style: TextStyle(
+                        fontSize: 16, 
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      )
+                    ),
+              ),
             ),
           ),
         ),

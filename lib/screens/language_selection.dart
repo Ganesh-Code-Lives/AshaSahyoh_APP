@@ -20,9 +20,9 @@ class _LanguageSelectionState extends State<LanguageSelection> {
   ];
 
   final Map<String, Color> baseColors = {
-    'en': const Color(0xFFFBCFE8), // Pink
-    'hi': const Color(0xFFBAE6FD), // Blue
-    'mr': const Color(0xFFA7F3D0), // Green
+    'en': const Color(0xFFFBCFE8),
+    'hi': const Color(0xFFBAE6FD),
+    'mr': const Color(0xFFA7F3D0),
   };
 
   final Map<String, Color> activeLightColors = {
@@ -48,7 +48,6 @@ class _LanguageSelectionState extends State<LanguageSelection> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Progress Indicator
                 Row(
                   children: [
                     Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2)))),
@@ -73,7 +72,6 @@ class _LanguageSelectionState extends State<LanguageSelection> {
                 ),
                 const SizedBox(height: 32),
                 
-                // Language List
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),

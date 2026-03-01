@@ -14,7 +14,6 @@ class Support extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // --- 1. Header ---
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               decoration: const BoxDecoration(
@@ -42,12 +41,11 @@ class Support extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () {
-                      // Voice accessibility action
                     },
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3E8FF), // Light purple bg
+                        color: const Color(0xFFF3E8FF),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.volume_up_rounded, color: AppTheme.primary, size: 24),
@@ -57,19 +55,17 @@ class Support extends StatelessWidget {
               ),
             ),
 
-            // --- Scrollable Content ---
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // --- 2. Emergency Warning Banner ---
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFBCFE8), // Light Red
+                        color: const Color(0xFFFBCFE8),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: const Color(0xFFFECACA)),
                       ),
@@ -113,7 +109,6 @@ class Support extends StatelessWidget {
 
                     const SizedBox(height: 24),
 
-                    // --- 3. Quick Emergency Grid ---
                     const Text(
                       'Quick Emergency',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937)),
@@ -122,7 +117,6 @@ class Support extends StatelessWidget {
                     
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        // Manual Grid implementation for better control than GridView inside ScrollView
                         final double itemWidth = (constraints.maxWidth - 16) / 2;
                         final double itemHeight = 140;
 
@@ -136,7 +130,7 @@ class Support extends StatelessWidget {
                               title: "Ambulance",
                               number: "108",
                               icon: Icons.medical_services_outlined,
-                              colorTheme: const Color(0xFFBE185D), // Soft Red
+                              colorTheme: const Color(0xFFBE185D),
                               bgColor: const Color(0xFFFBCFE8),
                             ),
                             _EmergencyCard(
@@ -145,7 +139,7 @@ class Support extends StatelessWidget {
                               title: "Police",
                               number: "100",
                               icon: Icons.local_police_outlined,
-                              colorTheme: const Color(0xFF0284C7), // Soft Blue
+                              colorTheme: const Color(0xFF0284C7),
                               bgColor: const Color(0xFFBAE6FD),
                             ),
                             _EmergencyCard(
@@ -154,7 +148,7 @@ class Support extends StatelessWidget {
                               title: "Fire",
                               number: "101",
                               icon: Icons.local_fire_department_outlined,
-                              colorTheme: const Color(0xFFFB923C), // Soft Orange
+                              colorTheme: const Color(0xFFFB923C),
                               bgColor: const Color(0xFFFED7AA),
                             ),
                             _EmergencyCard(
@@ -163,7 +157,7 @@ class Support extends StatelessWidget {
                               title: "Women Help",
                               number: "1091",
                               icon: Icons.female_rounded,
-                              colorTheme: const Color(0xFFF85FAF), // Soft Pink
+                              colorTheme: const Color(0xFFF85FAF),
                               bgColor: const Color(0xFFFBCFE8),
                             ),
                           ],
@@ -173,7 +167,6 @@ class Support extends StatelessWidget {
 
                     const SizedBox(height: 32),
 
-                    // --- 4. Government Helpline Section ---
                     const Text(
                       'Government Helpline Numbers',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1F2937)),
@@ -381,7 +374,7 @@ class _HelplineCard extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFDCFCE7), // Light green
+              color: const Color(0xFFDCFCE7),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Material(

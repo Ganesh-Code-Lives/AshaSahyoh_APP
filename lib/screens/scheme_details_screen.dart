@@ -115,7 +115,6 @@ class _SchemeDetailsScreenState extends State<SchemeDetailsScreen> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Link traversal logic
                 final link = widget.scheme['official_link'] ?? '';
                 debugPrint('Navigating to: $link');
               },
@@ -168,7 +167,6 @@ class _SchemeDetailsScreenState extends State<SchemeDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Scheme Primary Card
         _buildCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,7 +212,6 @@ class _SchemeDetailsScreenState extends State<SchemeDetailsScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        // Overview Card
         _buildCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -470,7 +467,6 @@ class _SchemeDetailsScreenState extends State<SchemeDetailsScreen> {
                     ),
                   )),
               const SizedBox(height: 8),
-              // Info box inside the card
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -506,7 +502,6 @@ class _SchemeDetailsScreenState extends State<SchemeDetailsScreen> {
   Widget _buildDocumentsTab() {
     final docs = widget.scheme['required_documents'] as List<dynamic>? ?? [];
     
-    // Icon mapping logic
     IconData _getIcon(String doc) {
       final d = doc.toLowerCase();
       if (d.contains('aadhaar') || d.contains('identity')) return Icons.badge_outlined;

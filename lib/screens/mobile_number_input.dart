@@ -59,7 +59,6 @@ class _MobileNumberInputState extends State<MobileNumberInput> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Progress
                 Row(
                   children: [
                     Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2)))),
@@ -81,7 +80,6 @@ class _MobileNumberInputState extends State<MobileNumberInput> {
                 const Text('Mobile Number', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 8),
 
-                // Input Box
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -140,7 +138,6 @@ class _MobileNumberInputState extends State<MobileNumberInput> {
 
                 const SizedBox(height: 32),
 
-                // Disclaimer
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(

@@ -13,7 +13,6 @@ class EmergencySOS extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -35,7 +34,6 @@ class EmergencySOS extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    // SOS Button
                     Container(
                       padding: const EdgeInsets.all(32),
                       decoration: BoxDecoration(
@@ -77,7 +75,6 @@ class EmergencySOS extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     
-                    // Share Live Location
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -127,7 +124,6 @@ class EmergencySOS extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     
-                    // Emergency Contacts
                      Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                        children: [
@@ -143,12 +139,12 @@ class EmergencySOS extends StatelessWidget {
                             label: const Text('Add Emergency Contact'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppTheme.primary,
-                              side: const BorderSide(color: Color(0xFFC4B5FD), width: 2, style: BorderStyle.none), // Dotted border hard to do with OutlinedButton standard
+                              side: const BorderSide(color: Color(0xFFC4B5FD), width: 2, style: BorderStyle.none),
                               backgroundColor: Colors.transparent,
                               minimumSize: const Size(double.infinity, 48),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ).copyWith(
-                              side: WidgetStateProperty.all(const BorderSide(color: Color(0xFFC4B5FD), width: 2)), // Reverting to solid for simplicity or use CustomPaint for dotted
+                              side: WidgetStateProperty.all(const BorderSide(color: Color(0xFFC4B5FD), width: 2)),
                             ),
                           ),
                        ],

@@ -40,7 +40,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
     }
   }
   
-  // To update UI on change to enable/disable button
   void _updateState() {
      setState(() {});
   }
@@ -83,7 +82,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
       });
 
       if (widget.isEditing) {
-        // when editing we simply pop back to previous screen
         Navigator.of(context).pop(true);
       }
     }
@@ -103,7 +101,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   // Progress
                   Row(
                     children: [
                       Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2)))),
@@ -122,7 +119,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                   const Text('Please provide your personal information', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
                   const SizedBox(height: 32),
                   
-                  // Full Name
                   const Text('Full Name *', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   TextFormField(
@@ -131,7 +127,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Email
                   const Text('Email *', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   TextFormField(
@@ -141,7 +136,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Date of Birth
                   const Text('Date of Birth *', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   TextFormField(
@@ -149,13 +143,12 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                     readOnly: true,
                     onTap: () => _selectDate(context),
                     decoration: const InputDecoration(
-                      hintText: 'YYYY-MM-DD', // Typically localized
+                      hintText: 'YYYY-MM-DD',
                       suffixIcon: Icon(Icons.calendar_today, size: 20),
                     ),
                   ),
                   const SizedBox(height: 16),
                   
-                  // Gender using Dropdown
                   const Text('Gender *', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
@@ -178,7 +171,6 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Address
                   const Text('Address (Optional)', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   TextFormField(
@@ -186,7 +178,7 @@ class _PersonalDetailsState extends State<PersonalDetails> {
                     maxLines: 3,
                     decoration: const InputDecoration(hintText: 'Enter your address'),
                   ),
-                  const SizedBox(height: 100), // Spacing for bottom button
+                  const SizedBox(height: 100),
                 ],
               ),
             ),

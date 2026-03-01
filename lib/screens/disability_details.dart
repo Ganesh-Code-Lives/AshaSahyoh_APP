@@ -91,7 +91,6 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Progress
                 Row(
                   children: [
                     Expanded(child: Container(height: 4, decoration: BoxDecoration(color: AppTheme.primary, borderRadius: BorderRadius.circular(2)))),
@@ -110,7 +109,6 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
                 const Text('(Optional) This helps us provide better services', style: TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
                 const SizedBox(height: 32),
 
-                // Toggle Switch
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
@@ -134,7 +132,6 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
                 if (_hasDisability) ...[
                   const SizedBox(height: 24),
                   
-                  // Disability Type
                   const Text('Type of Disability', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
@@ -153,7 +150,6 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Percentage
                   const Text('Disability Percentage (if known)', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   TextField(
@@ -163,7 +159,6 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Certificate
                   const Text('Disability Certificate Number (if available)', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   TextField(
@@ -172,7 +167,6 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Assistive Devices
                   const Text('Assistive Devices Used (if any)', style: TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 12),
                   Wrap(

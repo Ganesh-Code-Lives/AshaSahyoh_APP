@@ -35,7 +35,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   String? _profileImageBase64;
   bool _isAvatarPressed = false;
 
-  // profile fields stored locally for display and editing
   String fullName = '';
   String email = '';
   String dateOfBirth = '';
@@ -58,7 +57,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       vsync: this,
     );
 
-    // Header slides in from top
     _headerSlide = Tween<Offset>(
       begin: const Offset(0, -1),
       end: Offset.zero,
@@ -67,7 +65,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       curve: const Interval(0.0, 0.65, curve: Curves.easeOut),
     ));
 
-    // Body fades in after header starts landing
     _bodyFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
@@ -216,14 +213,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // --- Header Section (slides down) ---
             SlideTransition(
               position: _headerSlide,
               child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
-                  // 1. Gradient Background
                   Container(
                     height: 200,
                     decoration: const BoxDecoration(
@@ -236,7 +231,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   ),
                   
-                  // 2. Back Button & Title
                   Positioned(
                     top: 0,
                     left: 0,
@@ -270,7 +264,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                     ),
                   ),
 
-                  // 3. Avatar (floating halfway)
                   Positioned(
                     bottom: -50,
                     child: Column(
@@ -322,14 +315,12 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
               ),
             ),
 
-            // --- Body content (fades in) ---
             FadeTransition(
               opacity: _bodyFade,
               child: Column(
                 children: [
-                  const SizedBox(height: 60), // Space for floating avatar
+                  const SizedBox(height: 60),
 
-                  // --- User Name & Email ---
                   Text(
                     fullName.isNotEmpty ? fullName : 'AshaSahyog User',
                     style: const TextStyle(
@@ -348,12 +339,10 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                   ),
                   const SizedBox(height: 24),
 
-                  // --- Content Sections ---
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
-                        // Personal Information Card
                         _SectionCard(
                           title: 'Personal Information',
                           icon: Icons.person_outline_rounded,
@@ -372,7 +361,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                         const SizedBox(height: 20),
 
-                        // Disability Information Card
                         _SectionCard(
                           title: 'Disability Details',
                           icon: Icons.accessible_forward_rounded,
@@ -393,7 +381,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                         const SizedBox(height: 20),
 
-                        // Settings / Quick Links Card
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -409,7 +396,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
                                 title: 'Language & Accessibility',
                               ),
                               Divider(height: 1, color: AppTheme.border, indent: 56, endIndent: 20),
-                              // removed change password option as per requirements
                               _SettingsTile(
                                 icon: Icons.help_outline_rounded,
                                 color: const Color(0xFF059669), 
@@ -422,7 +408,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
 
                         const SizedBox(height: 32),
 
-                        // Logout Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -452,7 +437,6 @@ class _ProfileState extends State<Profile> with SingleTickerProviderStateMixin {
   }
 }
 
-// --- Helper Widgets ---
 
 class _SectionCard extends StatelessWidget {
   final String title;

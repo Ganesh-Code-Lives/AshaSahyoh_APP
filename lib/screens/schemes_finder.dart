@@ -71,7 +71,6 @@ class _SchemesFinderState extends State<SchemesFinder> {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -90,7 +89,6 @@ class _SchemesFinderState extends State<SchemesFinder> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Search Bar
                   TextField(
                     controller: _searchController,
                     decoration: const InputDecoration(
@@ -101,7 +99,6 @@ class _SchemesFinderState extends State<SchemesFinder> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Filter Chips (static for now)
                   const SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -120,7 +117,6 @@ class _SchemesFinderState extends State<SchemesFinder> {
               ),
             ),
 
-            // Schemes List
             Expanded(
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
@@ -134,7 +130,6 @@ class _SchemesFinderState extends State<SchemesFinder> {
                             final title = item['scheme_name'] ?? '';
                             final department = item['category'] ?? '';
                             final description = item['summary'] ?? '';
-                            // pick color set by index
                             final colors = [
                               [Color(0xFFBE185D), Color(0xFFFBCFE8)],
                               [Color(0xFF0284C7), Color(0xFFBAE6FD)],

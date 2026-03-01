@@ -27,7 +27,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
   void initState() {
     super.initState();
 
-    // 1. Logo Animation (Starts immediately)
     _logoController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -37,7 +36,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
       CurvedAnimation(parent: _logoController, curve: Curves.easeOutBack),
     );
 
-    // 2. Text Animation (Starts after 400ms)
     _textController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -47,7 +45,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     );
     _textFade = CurvedAnimation(parent: _textController, curve: Curves.easeOut);
 
-    // 3. Button Animation (Starts after 800ms)
     _buttonController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -57,7 +54,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
     );
     _buttonFade = CurvedAnimation(parent: _buttonController, curve: Curves.easeOut);
 
-    // Sequence the animations
     _logoController.forward();
     Future.delayed(const Duration(milliseconds: 400), () => _textController.forward());
     Future.delayed(const Duration(milliseconds: 800), () => _buttonController.forward());
@@ -73,30 +69,26 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    // Determine screen size for responsive positioning
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6FC), // Fallback
+      backgroundColor: const Color(0xFFF8F6FC),
       body: Stack(
         children: [
-          // --- Background Gradient ---
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFFF8F6FC), // Soft Lavender
-                  Color(0xFFFFFFFF), // White
-                  Color(0xFFFDF4FF), // Very subtle pink hint at bottom
+                  Color(0xFFF8F6FC),
+                  Color(0xFFFFFFFF),
+                  Color(0xFFFDF4FF),
                 ],
               ),
             ),
           ),
 
-          // --- Decorative Blobs ---
-          // Top Left Blob (Purple)
           Positioned(
             top: -100,
             left: -100,
@@ -116,7 +108,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
               ),
             ),
           ),
-          // Bottom Right Blob (Gold/Pink mix)
           Positioned(
             bottom: -80,
             right: -80,
@@ -137,25 +128,23 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
             ),
           ),
 
-          // --- Main Content ---
           SafeArea(
             child: SizedBox(
               width: double.infinity,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(flex: 3), // Push content slightly up
+                  const Spacer(flex: 3),
 
-                  // 1. Logo Section
                   ScaleTransition(
                     scale: _logoScale,
                     child: FadeTransition(
                       opacity: _logoFade,
                       child: Container(
-                        padding: const EdgeInsets.all(20), // More breathing room
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.5), // Subtle glass effect back
+                          color: Colors.white.withOpacity(0.5),
                           boxShadow: [
                             BoxShadow(
                               color: const Color(0xFF6A1B9A).withOpacity(0.12),
@@ -167,7 +156,7 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                         ),
                         child: Image.asset(
                           'assets/images/logo.png',
-                          width: 180, // Increased size
+                          width: 180,
                           height: 180,
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
@@ -189,7 +178,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
                   const SizedBox(height: 32),
 
-                  // 2. Text Section
                   SlideTransition(
                     position: _textSlide,
                     child: FadeTransition(
@@ -200,9 +188,9 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                           const Text(
                             'AshaSahyog',
                             style: TextStyle(
-                              fontSize: 34, // Slightly larger
+                              fontSize: 34,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF5B1685), // Darker Royal Purple for contrast
+                              color: Color(0xFF5B1685),
                               letterSpacing: 0.8,
                               height: 1.2,
                             ),
@@ -226,7 +214,6 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
 
                   const Spacer(flex: 4),
 
-                  // 3. Button Section
                   SlideTransition(
                     position: _buttonSlide,
                     child: FadeTransition(
@@ -235,13 +222,13 @@ class _IntroScreenState extends State<IntroScreen> with TickerProviderStateMixin
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                         child: Container(
                           width: double.infinity,
-                          height: 56, // Slightly taller
+                          height: 56,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24), // Softer corners
+                            borderRadius: BorderRadius.circular(24),
                             gradient: const LinearGradient(
                               colors: [
-                                Color(0xFF7C3AED), // Purple
-                                Color(0xFFEC4899), // Pink
+                                Color(0xFF7C3AED),
+                                Color(0xFFEC4899),
                               ],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,

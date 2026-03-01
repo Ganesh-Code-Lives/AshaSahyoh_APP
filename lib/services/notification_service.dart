@@ -17,16 +17,11 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
-    // Initialize timezone
     tz.initializeTimeZones();
 
-    // Android initialization
-    // Using app_icon from android/app/src/main/res/drawable or mipmap.
-    // If not found, use default ic_launcher
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // iOS initialization
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestSoundPermission: true,
@@ -42,11 +37,9 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        // Handle notification click
-      },
+        },
     );
 
-    // Request permissions for Android 13+
     if (!kIsWeb && Platform.isAndroid) {
       final androidImplementation = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       if (androidImplementation != null) {
@@ -62,7 +55,6 @@ class NotificationService {
     required DateTime scheduledTime,
     String? repeatType,
   }) async {
-    // Don't schedule if time is in the past
     if (scheduledTime.isBefore(DateTime.now())) {
       return;
     }

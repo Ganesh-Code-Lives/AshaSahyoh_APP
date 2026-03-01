@@ -143,7 +143,6 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Title
             TextFormField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -158,7 +157,6 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Description
             TextFormField(
               controller: _descriptionController,
               decoration: InputDecoration(
@@ -173,7 +171,6 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Type Dropdown
             DropdownButtonFormField<ReminderType>(
               value: _selectedType,
               decoration: InputDecoration(
@@ -195,7 +192,6 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Date & Time Selectors
             Row(
               children: [
                 Expanded(
@@ -239,7 +235,6 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Repeat Dropdown
             DropdownButtonFormField<RepeatType>(
               value: _selectedRepeat,
               decoration: InputDecoration(
@@ -261,7 +256,6 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Save Button
             ElevatedButton(
               onPressed: _saveReminder,
               style: ElevatedButton.styleFrom(

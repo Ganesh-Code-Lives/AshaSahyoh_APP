@@ -21,12 +21,11 @@ class BottomNav extends StatelessWidget {
           _buildNavItem('home', Icons.home, 'Home'),
           _buildNavItem('schemes', Icons.description, 'Schemes'),
           
-          // SOS Button
           InkWell(
             onTap: () => onNavigate('sos'),
             borderRadius: BorderRadius.circular(28),
             child: Container(
-              margin: const EdgeInsets.only(bottom: 24), // -mt-8 effect
+              margin: const EdgeInsets.only(bottom: 24),
               width: 56,
               height: 56,
               decoration: BoxDecoration(

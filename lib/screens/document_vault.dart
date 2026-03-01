@@ -18,7 +18,6 @@ class DocumentVault extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
@@ -37,7 +36,6 @@ class DocumentVault extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Search Bar
                   const TextField(
                     decoration: InputDecoration(
                       hintText: 'Search your documents...',
@@ -47,7 +45,6 @@ class DocumentVault extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   
-                  // Filter Chips
                   const SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -66,7 +63,6 @@ class DocumentVault extends StatelessWidget {
               ),
             ),
             
-            // Documents List
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -90,7 +86,7 @@ class DocumentVault extends StatelessWidget {
                   _DocumentCard(
                     title: 'Medical Prescription',
                     date: 'Uploaded: 05 Sep 2023',
-                    icon: Icons.assignment, // ClipboardList
+                    icon: Icons.assignment,
                     iconColor: Color(0xFF065F46),
                     bgColor: Color(0xFFA7F3D0),
                   ),

@@ -9,12 +9,11 @@ class HospitalLocator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6FC), // Brand background
+      backgroundColor: const Color(0xFFF8F6FC),
       body: Stack(
         children: [
           Column(
             children: [
-              // --- 1. Map Section (Top 42%) ---
               Expanded(
                 flex: 42,
                 child: Container(
@@ -32,20 +31,17 @@ class HospitalLocator extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Simulated Map Background
                       Container(
-                        color: const Color(0xFFE5E7EB), // Map gray base
+                        color: const Color(0xFFE5E7EB),
                         child: CustomPaint(
                           painter: _MapGridPainter(),
                         ),
                       ),
                       
-                      // Map Pins
-                      const _MapPin(top: 120, left: 80, color: Color(0xFFEF4444)), // Emergency Red
-                      const _MapPin(bottom: 100, right: 60, color: AppTheme.primary), // Purple
-                      const _MapPin(top: 180, right: 140, color: Color(0xFF10B981)), // Green (Clinic)
+                      const _MapPin(top: 120, left: 80, color: Color(0xFFEF4444)),
+                      const _MapPin(bottom: 100, right: 60, color: AppTheme.primary),
+                      const _MapPin(top: 180, right: 140, color: Color(0xFF10B981)),
 
-                      // Header Overlay
                       Positioned(
                         top: 0,
                         left: 0,
@@ -86,7 +82,6 @@ class HospitalLocator extends StatelessWidget {
                         ),
                       ),
 
-                      // Floating Map Controls (Right Side)
                       Positioned(
                         right: 16,
                         bottom: 32,
@@ -105,7 +100,6 @@ class HospitalLocator extends StatelessWidget {
                 ),
               ),
 
-              // --- 2. Hospital List Section (Bottom 58%) ---
               Expanded(
                 flex: 58,
                 child: Container(
@@ -123,7 +117,7 @@ class HospitalLocator extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF1F2937), // Charcoal
+                                color: Color(0xFF1F2937),
                               ),
                             ),
                             const Spacer(),
@@ -169,7 +163,7 @@ class HospitalLocator extends StatelessWidget {
                               isOpen: false,
                               facilities: ['Cardiology', 'Surgery', 'Labs'],
                             ),
-                            SizedBox(height: 100), // Bottom padding for FAB
+                            SizedBox(height: 100),
                           ],
                         ),
                       ),
@@ -187,7 +181,6 @@ class HospitalLocator extends StatelessWidget {
   }
 }
 
-// --- Helper Widgets ---
 
 class _MapPin extends StatelessWidget {
   final double? top;
@@ -284,7 +277,7 @@ class _HospitalCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6A1B9A).withOpacity(0.05), // Subtle purple shadow
+            color: const Color(0xFF6A1B9A).withOpacity(0.05),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -295,7 +288,6 @@ class _HospitalCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Row: Name + Rating
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -329,7 +321,7 @@ class _HospitalCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFFBEB), // Light Yellow
+                    color: const Color(0xFFFFFBEB),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: const Color(0xFFFEF3C7)),
                   ),
@@ -353,13 +345,12 @@ class _HospitalCard extends StatelessWidget {
             
             const SizedBox(height: 12),
 
-            // Middle Row: Distance Badge + Facilities
             Row(
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF3E8FF), // Light Purple
+                    color: const Color(0xFFF3E8FF),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -402,7 +393,6 @@ class _HospitalCard extends StatelessWidget {
             const Divider(height: 1, color: Color(0xFFF3F4F6)),
             const SizedBox(height: 12),
 
-            // Bottom Buttons
             Row(
               children: [
                 Expanded(
@@ -461,7 +451,6 @@ class _HospitalCard extends StatelessWidget {
   }
 }
 
-// Simple CustomPainter to draw a grid on the simulated map
 class _MapGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -472,17 +461,14 @@ class _MapGridPainter extends CustomPainter {
 
     const double gridSize = 40.0;
     
-    // Draw vertical lines
     for (double x = 0; x < size.width; x += gridSize) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
     
-    // Draw horizontal lines
     for (double y = 0; y < size.height; y += gridSize) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }
 
-    // Draw some random "roads"
     final roadPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.stroke
