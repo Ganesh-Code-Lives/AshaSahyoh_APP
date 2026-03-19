@@ -5,6 +5,7 @@ import 'home_screen.dart';
 import 'personal_details.dart';
 import 'intro_screen.dart';
 import '../theme/app_theme.dart';
+import '../widgets/custom_loading_indicator.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,23 +14,43 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+  bool _isNavigating = false;
+
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+
+    // Start fade-in immediately
+    _fadeController.forward();
     _checkUser();
   }
 
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkUser() async {
-    // Optional artificial delay for a smooth effect
-    await Future.delayed(const Duration(milliseconds: 500));
+    final startTime = DateTime.now();
 
-    if (!mounted) return;
-
+    // Perform the async logic (Supabase check)
     final user = Supabase.instance.client.auth.currentUser;
+    bool profileCompleted = false;
+    String? userEmail = user?.email;
 
     if (user != null) {
-      bool profileCompleted = false;
       try {
         final data = await Supabase.instance.client
             .from('profiles')
@@ -41,13 +62,31 @@ class _SplashScreenState extends State<SplashScreen> {
           profileCompleted = true;
         }
       } catch (e) {
-        print("Failed to fetch profile: $e");
+        debugPrint("Failed to fetch profile: $e");
       }
+    }
 
+    // Ensure splash shows for at least 3 seconds
+    final elapsed = DateTime.now().difference(startTime);
+    final remaining = const Duration(seconds: 3) - elapsed;
+    if (remaining > Duration.zero) {
+      await Future.delayed(remaining);
+    }
+
+    if (!mounted) return;
+
+    // Start fade-out before navigation
+    setState(() => _isNavigating = true);
+    await _fadeController.reverse();
+
+    if (!mounted) return;
+
+    // Based on logic results, navigate to the correct screen
+    if (user != null) {
       if (profileCompleted) {
         _navigateToHome();
       } else {
-        _navigateToPersonalDetails(user.email ?? '');
+        _navigateToPersonalDetails(userEmail ?? '');
       }
     } else {
       _navigateToIntro();
@@ -57,7 +96,11 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToHome() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const HomeScreen(),
+        transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
       (route) => false,
     );
   }
@@ -65,7 +108,11 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToPersonalDetails(String email) {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => PersonalDetails(email: email)),
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => PersonalDetails(email: email),
+        transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
       (route) => false,
     );
   }
@@ -73,7 +120,11 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToIntro() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const IntroScreen()),
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const IntroScreen(),
+        transitionsBuilder: (_, a, __, c) => FadeTransition(opacity: a, child: c),
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
       (route) => false,
     );
   }
@@ -81,22 +132,64 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Stack(
           children: [
-            // Can add a logo here. For now, a spinner
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primary),
+            // 1. Theme-matching Background Gradient
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppTheme.purpleVeryLight,
+                    AppTheme.background,
+                    AppTheme.surface,
+                  ],
+                  stops: [0.0, 0.5, 1.0],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'AshaSahyog',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primary,
+            
+            // 2. Soft Theme-matching Vignette
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 1.2,
+                  colors: [
+                    AppTheme.primary.withOpacity(0.05),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.2, 1.0],
+                ),
+              ),
+            ),
+
+            // 3. Center Content with Logo Glow (No Text)
+            Center(
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primary.withOpacity(0.15), // Theme purple glow
+                      blurRadius: 80,
+                      spreadRadius: 20,
+                    ),
+                    BoxShadow(
+                      color: Colors.white.withOpacity(0.8), // Inner highlight
+                      blurRadius: 40,
+                      spreadRadius: 10,
+                    ),
+                  ],
+                ),
+                child: const CustomLoadingIndicator(size: 280),
               ),
             ),
           ],

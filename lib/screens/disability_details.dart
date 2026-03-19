@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 
 import 'home_screen.dart';
+import 'splash_screen.dart';
 
 class DisabilityDetails extends StatefulWidget {
   const DisabilityDetails({super.key});
@@ -42,7 +43,8 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
       try {
-        await Supabase.instance.client.from('profiles').update({
+        await Supabase.instance.client.from('profiles').upsert({
+          'id': user.id,
           'has_disability': _hasDisability,
           'disability_type': _disabilityType,
           'disability_percentage': _percentageController.text,
@@ -50,7 +52,7 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
           'assistive_devices': _selectedDevices,
           'has_completed_profile': true,
           'updated_at': DateTime.now().toUtc().toIso8601String(),
-        }).eq('id', user.id);
+        });
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +65,7 @@ class _DisabilityDetailsState extends State<DisabilityDetails> {
     if (!mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => const SplashScreen()),
       (route) => false,
     );
   }

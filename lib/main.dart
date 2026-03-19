@@ -39,13 +39,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final session = Supabase.instance.client.auth.currentSession;
-
     return MaterialApp(
       title: 'AshaSahyog',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: session != null ? const SplashScreen() : const IntroScreen(),
+      home: const SplashScreen(),
     );
   }
 }

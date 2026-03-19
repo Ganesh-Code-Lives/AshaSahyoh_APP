@@ -61,14 +61,15 @@ class _PersonalDetailsState extends State<PersonalDetails> {
       final user = Supabase.instance.client.auth.currentUser;
       if (user != null) {
         try {
-          // Update core profile info - explicitly preventing arbitrary inserts
-          await Supabase.instance.client.from('profiles').update({
+          // Upsert core profile info to ensure row exists
+          await Supabase.instance.client.from('profiles').upsert({
+            'id': user.id,
             'full_name': _fullNameController.text,
             'dob': _dateOfBirthController.text,
             'gender': _gender,
             'address': _addressController.text,
             'updated_at': DateTime.now().toUtc().toIso8601String(),
-          }).eq('id', user.id);
+          });
         } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("Error saving profile: $e")),
