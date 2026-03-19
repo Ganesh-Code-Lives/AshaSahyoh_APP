@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
-        android:label="asha_sahyog"
+        android:label="Asha Sahyog"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
