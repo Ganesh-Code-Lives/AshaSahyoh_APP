@@ -5,37 +5,33 @@ on:
 
 jobs:
   build-ios:
-    name: Build iOS IPA
     runs-on: macos-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
+      - run: flutter clean
 
-      - name: Clean project
-        run: flutter clean
+      # Build .app
+      - name: Build iOS app
+        run: flutter build ios --release --no-codesign
 
-      # Generate iOS configs
-      - name: Prepare iOS build
-        run: flutter build ios --no-codesign
+      # Convert to IPA
+      - name: Create IPA manually
+        run: |
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -r Runner.app Payload/
+          zip -r Runner.ipa Payload
 
-      # ✅ FINAL FIX HERE
-      - name: Build IPA
-        run: flutter build ipa --release --no-codesign
-
-      - name: List build files
-        run: ls -R build/ios
-
+      # Upload IPA
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: build/ios/ipa/*.ipa
+          path: build/ios/iphoneos/Runner.ipa
