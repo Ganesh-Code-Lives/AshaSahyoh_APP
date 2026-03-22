@@ -23,17 +23,21 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # Clean (IMPORTANT - avoids cache issues)
+      - name: Clean project
+        run: flutter clean
+
       # Install CocoaPods
       - name: Install CocoaPods
         run: |
           cd ios
           pod install
 
-      # Build IPA (IMPORTANT)
+      # Build IPA (FIXED)
       - name: Build IPA
-        run: flutter build ipa --release --no-codesign
+        run: flutter build ipa --release --export-method ad-hoc
 
-      # Debug (optional but useful)
+      # Debug (VERY IMPORTANT)
       - name: List build files
         run: ls -R build/ios
 
@@ -42,4 +46,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: build/ios/ipa/*.ipa
+          path: |
+            build/ios/ipa/*.ipa
+            build/ios/archive/*.xcarchive
