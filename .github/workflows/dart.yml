@@ -23,21 +23,19 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Clean (IMPORTANT - avoids cache issues)
+      # Clean project (important)
       - name: Clean project
         run: flutter clean
 
-      # Install CocoaPods
-      - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install
+      # Prepare iOS build (fix for Generated.xcconfig error)
+      - name: Prepare iOS build
+        run: flutter build ios --no-codesign
 
-      # Build IPA (FIXED)
+      # Build IPA (final step)
       - name: Build IPA
         run: flutter build ipa --release --export-method ad-hoc
 
-      # Debug (VERY IMPORTANT)
+      # Debug (to confirm IPA exists)
       - name: List build files
         run: ls -R build/ios
 
