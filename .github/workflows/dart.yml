@@ -1,11 +1,5 @@
-name: iOS-ipa-build
-
-on:
-  workflow_dispatch:
-
 jobs:
   build-ios:
-    name: 🎉 iOS Build
     runs-on: macos-latest
 
     steps:
@@ -13,17 +7,16 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
       - run: flutter pub get
 
-      - run: pod repo update
-        working-directory: ios
+      - run: cd ios && pod repo update
 
-      # ✅ Correct build
+      # ✅ THIS IS THE MAIN STEP
       - run: flutter build ipa --no-codesign
 
-      # ✅ Upload IPA
+      # ✅ UPLOAD IPA
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
